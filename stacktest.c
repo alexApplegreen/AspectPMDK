@@ -32,15 +32,21 @@ int main(int argc, char const *argv[]) {
     }
 
     // push elements regularly
-    push(stack, 'A');
+    push(stack, 'B');
     if (stack->counter != 1) {
         printf("%s\n", "Cannot push to Stack");
         passed--;
     }
     else {
         char elem = pop(stack);
-        if (elem != 'A') {
+        if (elem != 'B') {
             printf("%s\n", "Cannot pull Data from Stack!");
+            passed--;
+        }
+
+        // check if stack is empty
+        if (!isEmpty(stack)) {
+            printf("%s\n", "Elements still present in Stack");
             passed--;
         }
     }
