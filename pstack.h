@@ -63,7 +63,7 @@ char pop(struct stack* stack) {
             TX_ADD_DIRECT(stack->elements);
             TX_ADD_DIRECT(stack->counter);
             TX_ADD_DIRECT(elem);
-            
+
             char elem = stack->elements[stack->counter];
             stack->counter--;
             return elem;
@@ -76,4 +76,9 @@ char pop(struct stack* stack) {
 /// checks if given Stack is empty
 int isEmpty(struct stack* stack) {
     return stack->counter == 0;
+}
+
+
+void free(struct pstack* stack) {
+
 }
