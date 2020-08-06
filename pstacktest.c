@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
         push(pstack, 'A');
 
         if (pop(pstack) != 'A') {
-            passed--
+            passed--;
         }
         if (pop(pstack) != 'B') {
             passed--;
