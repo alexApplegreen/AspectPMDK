@@ -6,6 +6,8 @@
 
 int main(int argc, char const *argv[]) {
 
+    int passed = 0;
+
     // create memorypool
     PMEMobjpool* pool;
     if (!(pool = pmemobj_open(POOL, ""))) {
@@ -14,14 +16,12 @@ int main(int argc, char const *argv[]) {
             exit(-1);
         }
     }
-    printf("%s\n", "Instance was created successfully!");
     // get instance of stack and check if it exists
     PMEMoid stack = getInstance(10, pool);
     if (OID_IS_NULL(stack)) {
-        printf("%s\n", "Error");
+        log_error("%s\n", "Stack is Null");
     }
 
-    printf("%s\n", "Pushing elements to the stack");
     // push elements into the stack
     // TODO fast fertig, letztes Element wird wegen Indexfehler oder so nicht gepoppt
     push(stack, 'O');
@@ -32,13 +32,17 @@ int main(int argc, char const *argv[]) {
 
     // check if stack is empty
     if (isEmpty(stack)) {
-        printf("%s\n", "Cannot push to Stack!");
+        log_error("%s\n", "Cannot push to Stack!");
         exit(0);
     }
 
     // should print "Hallo"
     while(!isEmpty(stack)) {
-        printf("%c\n", pop(stack));
+        log_debug("%c\n", pop(stack));
+    }
+
+    if (passed == 0) {
+        log_info("%s\n" "All tests passed");
     }
 
     return 0;

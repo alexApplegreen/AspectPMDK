@@ -12,6 +12,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libpmemobj.h>
+#include "util/log.c"
+
+// Forward Declarations
+PMEMoid getInstance(uint64_t size, PMEMobjpool* pool);
+void push(PMEMoid stack, char elem);
+char pop(PMEMoid stack);
+int isEmpty(PMEMoid stack);
 
 // global TOIDs
 TOID_DECLARE(struct pstack, 1);
@@ -22,6 +29,7 @@ TOID(char) pelem;
 
 static PMEMobjpool* m_pool;
 
+/// The internal stack which is used for FIFO storing of Data
 struct pstack {
     uint64_t                maxsize;
     int                     counter;
@@ -64,7 +72,8 @@ int init(PMEMobjpool* pool, void* ptr, void* args) {
 
    \return a PMEMoid Wrapper around a Stack Object
 */
-PMEMoid getInstance(int size, PMEMobjpool* pool) {
+PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
+
     m_pool = pool;
     // initialize Stack
     PMEMoid pstack_oid;
@@ -75,13 +84,15 @@ PMEMoid getInstance(int size, PMEMobjpool* pool) {
 
 /*!
    \brief Pushes an element into the stack according to FIFO principle
+
    \param pstack_oid: PMEMoid stack wrapper
+          elem: char to push into stack
 */
 void push(PMEMoid pstack_oid, char elem) {
-    TOID_ASSIGN(pstack, pstack_oid);
 
+    TOID_ASSIGN(pstack, pstack_oid);
     if (D_RO(pstack)->counter >= D_RO(pstack)->maxsize) {
-        printf("%s\n", "Stack is full!");
+        log_error("%s\n", "Stack is full");
     }
     else {
         TX_BEGIN(m_pool) {
@@ -101,10 +112,11 @@ void push(PMEMoid pstack_oid, char elem) {
    \return the next char stored in the Stack
 */
 char pop(PMEMoid pstack_oid) {
+
     TOID_ASSIGN(pstack, pstack_oid);
 
     if (isEmpty(pstack_oid)) {
-        printf("%s\n", "Stack is empty!");
+        log_error("%s\n", "Stack is emtpy");
     }
     else {
         char elem;
@@ -117,7 +129,7 @@ char pop(PMEMoid pstack_oid) {
         } TX_END
         return elem;
     }
-    return NULL;
+    return '0';
 }
 
 /// Check if Stack is empty
