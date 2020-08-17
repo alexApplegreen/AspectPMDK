@@ -1,2 +1,2 @@
 all:
-	gcc pstacktest.c -lpmemobj 
+	gcc pstacktest.c -lpmemobj -g

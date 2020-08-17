@@ -20,12 +20,12 @@ TOID(struct pstack) pstack;
 TOID_DECLARE(char, 2);
 TOID(char) pelem;
 
-static PMEMobjpool* pool;
+static PMEMobjpool* m_pool;
 
 struct pstack {
     uint64_t                maxsize;
-    uint64_t                counter;
-    char*                   elements;
+    int                     counter;
+    char                    elements[];
 };
 
 /*!
@@ -47,12 +47,9 @@ int init(PMEMobjpool* pool, void* ptr, void* args) {
 
     D_RW(pstack)->maxsize = size;
     D_RW(pstack)->counter = 0;
+    D_RW(pstack)->elements[size];
 
-    PMEMoid pelem_oid;
-    TOID_ASSIGN(pelem, pelem_oid);
-    pmemobj_alloc(pool, &pelem_oid, size * sizeof(char), 2, 0, 0);
-
-    D_RW(pstack)->elements = D_RO(pelem);
+    pmemobj_persist(pool, D_RW(pstack), sizeof(D_RW(pstack)));
 
     return 0;
 }
@@ -68,10 +65,10 @@ int init(PMEMobjpool* pool, void* ptr, void* args) {
    \return a PMEMoid Wrapper around a Stack Object
 */
 PMEMoid getInstance(int size, PMEMobjpool* pool) {
-
+    m_pool = pool;
     // initialize Stack
     PMEMoid pstack_oid;
-    pmemobj_alloc(pool, &pstack_oid, sizeof(struct pstack), 1, init, (void*)size);
+    pmemobj_alloc(m_pool, &pstack_oid, sizeof(struct pstack), 1, init, (void*)size);
 
     return pstack_oid;
 }
@@ -87,12 +84,14 @@ void push(PMEMoid pstack_oid, char elem) {
         printf("%s\n", "Stack is full!");
     }
     else {
-        TX_BEGIN(pool) {
+        TX_BEGIN(m_pool) {
             TX_ADD_DIRECT(&D_RW(pstack)->elements[D_RO(pstack)->counter + 1]);
             TX_ADD_DIRECT(&D_RW(pstack)->counter);
 
-            D_RW(pstack)->elements[D_RW(pstack)->counter++] = elem;
+            D_RW(pstack)->elements[D_RW(pstack)->counter] = elem;
+            D_RW(pstack)->counter++;
         } TX_END
+
     }
 }
 
@@ -104,19 +103,18 @@ void push(PMEMoid pstack_oid, char elem) {
 char pop(PMEMoid pstack_oid) {
     TOID_ASSIGN(pstack, pstack_oid);
 
-    if (D_RO(pstack)->counter == 0) {
+    if (isEmpty(pstack_oid)) {
         printf("%s\n", "Stack is empty!");
     }
     else {
         char elem;
-        TX_BEGIN(pool) {
+        TX_BEGIN(m_pool) {
             TX_ADD_DIRECT(&D_RW(pstack)->elements[D_RO(pstack)->counter]);
             TX_ADD_DIRECT(&D_RW(pstack)->counter);
 
             elem = D_RW(pstack)->elements[D_RO(pstack)->counter];
             D_RW(pstack)->counter--;
         } TX_END
-
         return elem;
     }
     return NULL;
@@ -124,5 +122,5 @@ char pop(PMEMoid pstack_oid) {
 
 /// Check if Stack is empty
 int isEmpty(PMEMoid pstack_oid) {
-    return D_RO(pstack)->counter == 0;
+    return D_RO(pstack)->counter <= 0;
 }
