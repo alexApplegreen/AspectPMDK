@@ -1,0 +1,23 @@
+/*!
+   \file transactionadvice.ah
+
+   \brief Defines a set of advices used for guaranteeing transactional behavior
+          on methods which modify the aopstack
+
+   \author Alexander Tepe
+
+   \date 20.08.2020
+*/
+
+#include <stdio.h>
+
+aspect transactions {
+
+  advice execution("%::push()") : before() {
+      printf("%s\n", "Advice: push");
+  }
+
+  advice execution("pop()") : before() {
+      printf("%s\n", "Advice: pop");
+  }
+};

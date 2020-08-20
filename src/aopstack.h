@@ -2,7 +2,9 @@
    \file pstack.h
 
    \brief implementation of Stack using arrays, Stack runnable on persistent
-          memory by using PMDK transactions
+          memory by using PMDK transactions. In this version of the stack,
+          transactional behavior is ensured by advices which trigger
+          the PMDK transactional API
 
    \author Alexander Tepe
 */
@@ -12,7 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libpmemobj.h>
-#include "util/log.h"
 
 // Forward Declarations
 PMEMoid getInstance(uint64_t size, PMEMobjpool* pool);
@@ -49,7 +50,7 @@ struct pstack {
    \return 0 on successful completion
 */
 int init(PMEMobjpool* pool, void* ptr, void* args) {
-    int size = (int)args;
+    intptr_t size = (intptr_t)args;
     PMEMoid stack_oid = pmemobj_oid(ptr);
     TOID_ASSIGN(pstack, stack_oid);
 
@@ -88,21 +89,16 @@ PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
    \param pstack_oid: PMEMoid stack wrapper
           elem: char to push into stack
 */
+// TODO make function behave transactional by using advices
 void push(PMEMoid pstack_oid, char elem) {
 
     TOID_ASSIGN(pstack, pstack_oid);
     if (D_RO(pstack)->counter >= D_RO(pstack)->maxsize) {
-        log_error("%s\n", "Stack is full");
+        printf("%s\n", "Stack is full");
     }
     else {
-        TX_BEGIN(m_pool) {
-            TX_ADD_DIRECT(&D_RW(pstack)->elements[D_RO(pstack)->counter + 1]);
-            TX_ADD_DIRECT(&D_RW(pstack)->counter);
-
-            D_RW(pstack)->elements[D_RW(pstack)->counter] = elem;
-            D_RW(pstack)->counter++;
-        } TX_END
-
+        D_RW(pstack)->elements[D_RW(pstack)->counter] = elem;
+        D_RW(pstack)->counter++;
     }
 }
 
@@ -111,23 +107,17 @@ void push(PMEMoid pstack_oid, char elem) {
    \param PMEMoid Stack wrapper
    \return the next char stored in the Stack
 */
+// TODO Transactional behavior through advice
 char pop(PMEMoid pstack_oid) {
 
     TOID_ASSIGN(pstack, pstack_oid);
 
     if (isEmpty(pstack_oid)) {
-        log_error("%s\n", "Stack is emtpy");
+        printf("%s\n", "Stack is empty");
     }
     else {
-        char elem;
-        TX_BEGIN(m_pool) {
-            TX_ADD_DIRECT(&D_RW(pstack)->elements[D_RO(pstack)->counter - 1]);
-            TX_ADD_DIRECT(&D_RW(pstack)->counter);
-
-            D_RW(pstack)->counter--;
-            elem = D_RW(pstack)->elements[D_RW(pstack)->counter];
-        } TX_END
-        return elem;
+        D_RW(pstack)->counter--;
+        return D_RW(pstack)->elements[D_RW(pstack)->counter];
     }
     return '0';
 }

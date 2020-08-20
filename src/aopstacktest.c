@@ -1,8 +1,7 @@
-#include "pstack.h"
+#include "aopstack.h"
 #include <stdio.h>
 #include <libpmemobj.h>
 #include <string.h>
-#include "util/log.h"
 
 #define POOL "/mempool"
 
@@ -11,10 +10,10 @@ int tests();
 int main(int argc, char const *argv[]) {
 
     if (tests() == 0) {
-        log_info("All tests passed");
+        printf("%s\n", "All tests passed");
     }
     else {
-        log_error("tests failed");
+        printf("%s\n", "tests failed");
     }
 }
 
@@ -34,7 +33,7 @@ int tests() {
 
     if (OID_IS_NULL(stack)) {
         passed--;
-        log_error("Stack cannot be created!");
+        printf("%s\n", "Stack cannot be created");
         return passed;
     }
 
@@ -54,12 +53,12 @@ int tests() {
 
     if (strcmp(hello, "HALLO") != 0) {
         passed--;
-        log_error("Pushing and popping does not work correctly");
+        printf("%s\n", "Pushing / Poppoing correctly is not working");
     }
 
     if (!isEmpty(stack)) {
         passed--;
-        log_error("Stack is not empty after popping all of its contents");
+        printf("%s\n", "Stack does not appear to be ampty after popping all");
     }
 
     return passed;
