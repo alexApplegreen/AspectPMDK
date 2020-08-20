@@ -57,10 +57,5 @@ int tests() {
         log_error("Pushing and popping does not work correctly");
     }
 
-    if (!isEmpty(stack)) {
-        passed--;
-        log_error("Stack is not empty after popping all of its contents");
-    }
-
     return passed;
 }

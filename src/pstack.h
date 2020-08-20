@@ -49,7 +49,7 @@ struct pstack {
    \return 0 on successful completion
 */
 int init(PMEMobjpool* pool, void* ptr, void* args) {
-    int size = (int)args;
+    intptr_t size = (intptr_t)args;
     PMEMoid stack_oid = pmemobj_oid(ptr);
     TOID_ASSIGN(pstack, stack_oid);
 

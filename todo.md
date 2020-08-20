@@ -1,6 +1,6 @@
 # TODOs
 
-* test suite einbauen (https://cmocka.org/)
-* Vernünftiges Logging einbauen (https://github.com/rxi/log.c)
+* Unit tests einbauen
+* Logging in AOPstack, AOPstacktest und transactionadvices.ah einbauen
 * Transationen per Aspektorientierung am Vorbild von Spring Boot
 * assertions in stack.h und pstack.h einbauen

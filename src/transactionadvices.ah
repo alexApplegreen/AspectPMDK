@@ -9,15 +9,29 @@
    \date 20.08.2020
 */
 
-#include <stdio.h>
+#include "util/log.h"
 
 aspect transactions {
 
-  advice execution("void push(...)") : before() {
-      printf("%s\n", "Advice: push");
-  }
+    /*!
+       \brief Advice which triggers before execution of push method of aopstack
+              and handles transactional behavior of the function
 
-  advice execution("char pop(...)") : before() {
-      printf("%s\n", "Advice: pop");
-  }
+       \param "Param description"
+    */
+    advice execution("void push(...)") : before() {
+        // TODO handle transaction
+        log_info("Advice: push");
+    }
+
+    /*!
+       \brief Advice which triggers before execution of pop function of aopstack
+              and handles transactional behavior of thr function
+
+       \param "Param description"
+    */
+    advice execution("char pop(...)") : before() {
+        // TODO handle transaction
+        log_info("Advice: pop");
+    }
 };

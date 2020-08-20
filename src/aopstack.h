@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libpmemobj.h>
+#include "util/log.h"
 
 // Forward Declarations
 PMEMoid getInstance(uint64_t size, PMEMobjpool* pool);
@@ -94,7 +95,7 @@ void push(PMEMoid pstack_oid, char elem) {
 
     TOID_ASSIGN(pstack, pstack_oid);
     if (D_RO(pstack)->counter >= D_RO(pstack)->maxsize) {
-        printf("%s\n", "Stack is full");
+        log_error("Stack is full");
     }
     else {
         D_RW(pstack)->elements[D_RW(pstack)->counter] = elem;
@@ -113,7 +114,7 @@ char pop(PMEMoid pstack_oid) {
     TOID_ASSIGN(pstack, pstack_oid);
 
     if (isEmpty(pstack_oid)) {
-        printf("%s\n", "Stack is empty");
+        log_error("Stack is empty");
     }
     else {
         D_RW(pstack)->counter--;
