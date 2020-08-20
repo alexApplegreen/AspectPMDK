@@ -124,8 +124,8 @@ char pop(PMEMoid pstack_oid) {
             TX_ADD_DIRECT(&D_RW(pstack)->elements[D_RO(pstack)->counter]);
             TX_ADD_DIRECT(&D_RW(pstack)->counter);
 
-            elem = D_RW(pstack)->elements[D_RO(pstack)->counter];
             D_RW(pstack)->counter--;
+            elem = D_RW(pstack)->elements[D_RW(pstack)->counter];
         } TX_END
         return elem;
     }

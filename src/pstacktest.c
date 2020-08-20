@@ -16,11 +16,8 @@ int main(int argc, char const *argv[]) {
             exit(-1);
         }
     }
-    // get instance of stack and check if it exists
+
     PMEMoid stack = getInstance(10, pool);
-    if (OID_IS_NULL(stack)) {
-        log_error("%s\n", "Stack is Null");
-    }
 
     // push elements into the stack
     // TODO fast fertig, letztes Element wird wegen Indexfehler oder so nicht gepoppt
@@ -30,11 +27,6 @@ int main(int argc, char const *argv[]) {
     push(stack, 'A');
     push(stack, 'H');
 
-    // check if stack is empty
-    if (isEmpty(stack)) {
-        log_error("%s\n", "Cannot push to Stack!");
-        exit(0);
-    }
 
     // should print "Hallo"
     while(!isEmpty(stack)) {
