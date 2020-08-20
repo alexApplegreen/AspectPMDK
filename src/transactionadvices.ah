@@ -13,11 +13,11 @@
 
 aspect transactions {
 
-  advice execution("%::push()") : before() {
+  advice execution("void push(...)") : before() {
       printf("%s\n", "Advice: push");
   }
 
-  advice execution("pop()") : before() {
+  advice execution("char pop(...)") : before() {
       printf("%s\n", "Advice: pop");
   }
 };
