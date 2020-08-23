@@ -9,9 +9,13 @@
    \date 20.08.2020
 */
 
-#include "util/log.h"
+#include <stdio.h>
+#include "attribute.h"
 
 aspect transactions {
+
+
+    pointcut transaction = transactional();
 
     /*!
        \brief Advice which triggers before execution of push method of aopstack
@@ -19,19 +23,9 @@ aspect transactions {
 
        \param "Param description"
     */
-    advice execution("void push(...)") : before() {
+    advice call(transaction()) : before() {
         // TODO handle transaction
-        log_info("Advice: push");
-    }
-
-    /*!
-       \brief Advice which triggers before execution of pop function of aopstack
-              and handles transactional behavior of thr function
-
-       \param "Param description"
-    */
-    advice execution("char pop(...)") : before() {
-        // TODO handle transaction
-        log_info("Advice: pop");
+        char* func = tjp->signature();
+        printf("Advice: %s\n", func);
     }
 };

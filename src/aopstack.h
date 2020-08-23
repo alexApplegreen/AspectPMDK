@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libpmemobj.h>
-#include "util/log.h"
+#include "attribute.h"
 
 // Forward Declarations
 PMEMoid getInstance(uint64_t size, PMEMobjpool* pool);
@@ -91,11 +91,12 @@ PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
           elem: char to push into stack
 */
 // TODO make function behave transactional by using advices
+[[transactional]]
 void push(PMEMoid pstack_oid, char elem) {
 
     TOID_ASSIGN(pstack, pstack_oid);
     if (D_RO(pstack)->counter >= D_RO(pstack)->maxsize) {
-        log_error("Stack is full");
+        printf("%s\n", "Stack is full");
     }
     else {
         D_RW(pstack)->elements[D_RW(pstack)->counter] = elem;
@@ -109,12 +110,13 @@ void push(PMEMoid pstack_oid, char elem) {
    \return the next char stored in the Stack
 */
 // TODO Transactional behavior through advice
+[[transactional]]
 char pop(PMEMoid pstack_oid) {
 
     TOID_ASSIGN(pstack, pstack_oid);
 
     if (isEmpty(pstack_oid)) {
-        log_error("Stack is empty");
+        printf("%s\n", "Stack is empty");
     }
     else {
         D_RW(pstack)->counter--;
