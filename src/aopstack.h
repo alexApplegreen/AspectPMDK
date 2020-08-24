@@ -14,12 +14,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libpmemobj.h>
-#include "attribute.h"
+#include "attribute.ah"
 
 // Forward Declarations
 PMEMoid getInstance(uint64_t size, PMEMobjpool* pool);
-void push(PMEMoid stack, char elem);
-char pop(PMEMoid stack);
+[[AOP::transactional]] void push(PMEMoid stack, char elem);
+[[AOP::transactional]] char pop(PMEMoid stack);
 int isEmpty(PMEMoid stack);
 
 // global TOIDs
@@ -91,7 +91,7 @@ PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
           elem: char to push into stack
 */
 // TODO make function behave transactional by using advices
-[[transactional]]
+[[AOP::transactional]]
 void push(PMEMoid pstack_oid, char elem) {
 
     TOID_ASSIGN(pstack, pstack_oid);
@@ -110,7 +110,7 @@ void push(PMEMoid pstack_oid, char elem) {
    \return the next char stored in the Stack
 */
 // TODO Transactional behavior through advice
-[[transactional]]
+[[AOP::transactional]]
 char pop(PMEMoid pstack_oid) {
 
     TOID_ASSIGN(pstack, pstack_oid);

@@ -7,4 +7,6 @@
    \date 23.08.2020
 */
 
-attribute transactional();
+namespace AOP {
+    attribute transactional();
+}

@@ -10,12 +10,11 @@
 */
 
 #include <stdio.h>
-#include "attribute.h"
+#include "attribute.ah"
 
 aspect transactions {
 
-
-    pointcut transaction = transactional();
+    pointcut transaction() = AOP::transactional();
 
     /*!
        \brief Advice which triggers before execution of push method of aopstack
