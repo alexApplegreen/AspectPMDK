@@ -24,7 +24,7 @@ aspect transactions {
     */
     advice call(transaction()) : before() {
         // TODO handle transaction
-        char* func = tjp->signature();
+        const char* func = tjp->signature();
         printf("Advice: %s\n", func);
     }
 };
