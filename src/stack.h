@@ -9,11 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct stack {
-    char*       elements;
-    char        top;
-    uint64_t    maxsize;
-    uint64_t    counter;
+struct STACK {
+    char*           elements;
+    uint64_t        maxsize;
+    uint64_t        counter;
 };
 
 /*!
@@ -21,8 +20,8 @@ struct stack {
    \param Size of Stack
    \return "Return of the function"
 */
-struct stack* getInstance(int size) {
-    struct stack* stack = malloc(sizeof(struct stack));
+struct STACK* getInstance(int size) {
+    struct STACK* stack = malloc(sizeof(struct STACK));
     stack->maxsize = size;
     stack->elements = malloc(size * sizeof(char));
     stack->counter = 0;
@@ -30,18 +29,19 @@ struct stack* getInstance(int size) {
 }
 
 /// adds element to stack
-void push(struct stack* stack, char elem) {
+void push(struct STACK* stack, char elem) {
     if (stack->counter >= stack->maxsize) {
         printf("%s\n", "Stack is full!");
     }
     else {
-        stack->elements[++stack->counter] = *strdup(&elem);
+        stack->elements[stack->counter] = elem;
+        stack->elements++;
     }
 }
 
 /// gets element from stack according to FIFO principle
-char pop(struct stack* stack) {
-    if (stack->counter <= 0) {
+char pop(struct STACK* stack) {
+    if (stack->counter == 0) {
         printf("%s\n", "Stack is empty");
     }
     else {
@@ -49,7 +49,7 @@ char pop(struct stack* stack) {
         stack->counter--;
         return elem;
     }
-    return NULL;
+    return '0';
 }
 
 /*!
@@ -57,6 +57,6 @@ char pop(struct stack* stack) {
    \param Pointer to Stack
    \return 0 if stack is empty
 */
-int isEmpty(struct stack* stack) {
+int isEmpty(struct STACK* stack) {
     return stack->counter == 0;
 }

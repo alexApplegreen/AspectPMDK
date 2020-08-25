@@ -16,6 +16,8 @@
 #include <libpmemobj.h>
 #include "attribute.ah"
 
+static PMEMobjpool* m_pool;
+
 // Forward Declarations
 PMEMoid getInstance(uint64_t size, PMEMobjpool* pool);
 [[AOP::transactional]] void push(PMEMoid stack, char elem);
@@ -28,8 +30,6 @@ TOID(struct pstack) pstack;
 
 TOID_DECLARE(char, 2);
 TOID(char) pelem;
-
-static PMEMobjpool* m_pool;
 
 /// The internal stack which is used for FIFO storing of Data
 struct pstack {

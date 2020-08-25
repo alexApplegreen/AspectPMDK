@@ -10,6 +10,8 @@
 */
 
 #include <stdio.h>
+#include <libpmemobj.h>
+#include <assert.h>
 #include "attribute.ah"
 
 aspect transactions {
@@ -22,9 +24,36 @@ aspect transactions {
 
        \param "Param description"
     */
-    advice call(transaction()) : before() {
-        // TODO handle transaction
-        const char* func = tjp->signature();
-        printf("Advice: %s\n", func);
+    advice execution(transaction()) : around() {
+        // Check if the annoated function returns something
+        // assert that PMEMobjpool* and elements to persist are present in args
+        // get PMEMobjpool*
+        // get elements to persist and add to transaction
+        // handle return?
+        // handle transaction
+
+        int num_args = tjp->args();
+        assert(num_args > 0);
+
+        // search oid in parameter list
+        // TODO cast is not working
+        int i = 0;
+        PMEMoid obj;
+        for (; i < num_args; i++) {
+            void* arg = tjp->arg(i);
+            obj = (PMEMoid)arg;
+            if (!OID_IS_NULL(obj)) {
+                break;
+            }
+        }
+        // PMEMoid is arg with index i;
+        PMEMobjpool* pool = pmemobj_pool_by_oid(obj);
+
+        TX_BEGIN(pool) {
+            pmemobj_tx_add_range_direct(&obj, sizeof(obj));
+            tjp->proceed();
+        } TX_ONABORT {
+            // TODO
+        } TX_END
     }
 };

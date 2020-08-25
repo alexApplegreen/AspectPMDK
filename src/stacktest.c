@@ -6,7 +6,7 @@ int passed = 0;
 int main(int argc, char const *argv[]) {
 
     // init stack
-    struct stack* stack = getInstance(10);
+    struct STACK* stack = getInstance(10);
     if (stack == NULL) {
         printf("%s\n", "Stack is NULL!");
         passed--;

@@ -10,8 +10,10 @@
 #ifndef TRANSACTION_ATTR_H
 #define TRANSACTION_ATTR_H
 
+#include <libpmemobj.h>
+
 namespace AOP {
     attribute transactional();
 }
- 
+
 #endif
