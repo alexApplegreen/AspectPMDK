@@ -2,5 +2,5 @@
 
 * Unit tests einbauen
 * Logging in AOPstack, AOPstacktest und transactionadvices.ah einbauen
-* Transaktionen per Aspektorientierung am Vorbild von Spring Boot
+* memorypool in Advice ist NULL
 * assertions in stacks einbauen
