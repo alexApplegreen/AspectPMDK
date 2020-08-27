@@ -127,5 +127,5 @@ char pop(PMEMoid pstack_oid) {
 
 /// Check if Stack is empty
 int isEmpty(PMEMoid pstack_oid) {
-    return D_RO(pstack)->counter <= 0;
+    return D_RO(pstack)->counter == 0;
 }
