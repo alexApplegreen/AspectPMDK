@@ -25,35 +25,36 @@ aspect transactions {
        \param "Param description"
     */
     advice execution(transaction()) : around() {
-        // Check if the annoated function returns something
-        // assert that PMEMobjpool* and elements to persist are present in args
-        // get PMEMobjpool*
-        // get elements to persist and add to transaction
-        // handle return?
-        // handle transaction
 
         int num_args = tjp->args();
-        assert(num_args > 0);
+        assert(num_args > 0 && transactional_attr_usage());
 
         // search oid in parameter list
-        // TODO cast is not working
         int i = 0;
         PMEMoid obj;
         for (; i < num_args; i++) {
-            void* arg = tjp->arg(i);
-            obj = (PMEMoid)arg;
+            // TODO This fails
+            obj = pmemobj_oid(tjp->arg(i));
             if (!OID_IS_NULL(obj)) {
                 break;
             }
         }
-        // PMEMoid is arg with index i;
-        PMEMobjpool* pool = pmemobj_pool_by_oid(obj);
-
-        TX_BEGIN(pool) {
-            pmemobj_tx_add_range_direct(&obj, sizeof(obj));
+        if (OID_IS_NULL(obj)) {
+            transactional_attr_usage();
+            printf("%s\n", "Warning: No transactional context provided");
+            // Do not hinder the flow ot the program at this point
             tjp->proceed();
-        } TX_ONABORT {
-            // TODO
-        } TX_END
+        }
+        else {
+            // PMEMoid is arg with index i;
+            PMEMobjpool* pool = pmemobj_pool_by_oid(obj);
+
+            TX_BEGIN(pool) {
+                pmemobj_tx_add_range_direct(&obj, sizeof(obj));
+                tjp->proceed();
+            } TX_ONABORT {
+                // TODO
+            } TX_END
+        }
     }
 };

@@ -16,4 +16,8 @@ namespace AOP {
     attribute transactional();
 }
 
+const char* transactional_attr_usage() {
+    return "The annotated method must receive a PMEMoid aggrgate as parameter";
+}
+
 #endif
