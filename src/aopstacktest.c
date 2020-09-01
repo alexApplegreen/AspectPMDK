@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <libpmemobj.h>
 #include <string.h>
+#include "util/log.h"
 
 #define POOL "/mempool"
 
@@ -10,10 +11,10 @@ int tests();
 int main(int argc, char const *argv[]) {
 
     if (tests() == 0) {
-        printf("%s\n", "All tests passed");
+        log_info("All tests passed");
     }
     else {
-        printf("%s\n", "Some tests failed");
+        log_info("Some tests have failed");
     }
 }
 
@@ -33,7 +34,7 @@ int tests() {
 
     if (OID_IS_NULL(stack)) {
         passed--;
-        printf("%s\n", "Stack cannot be created, exiting...");
+        log_error("Stack cannot be created, exiting");
         return passed;
     }
 
@@ -53,7 +54,7 @@ int tests() {
 
     if (strcmp(hello, "HALLO") != 0) {
         passed--;
-        printf("%s\n", "pushing / popping not working as expected");
+        log_error("Pushing and popping does not work correctly");
     }
 
     return passed;

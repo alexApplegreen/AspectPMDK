@@ -91,6 +91,7 @@ PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
 void push(PMEMoid pstack_oid, char elem) {
 
     TOID_ASSIGN(pstack, pstack_oid);
+
     if (D_RO(pstack)->counter >= D_RO(pstack)->maxsize) {
         log_error("%s\n", "Stack is full");
     }
@@ -111,7 +112,6 @@ void push(PMEMoid pstack_oid, char elem) {
    \param PMEMoid Stack wrapper
    \return the next char stored in the Stack
 */
-// TODO return from TX really impossible? Tests indicate otherwise
 char pop(PMEMoid pstack_oid) {
 
     TOID_ASSIGN(pstack, pstack_oid);
@@ -120,13 +120,15 @@ char pop(PMEMoid pstack_oid) {
         log_error("%s\n", "Stack is emtpy");
     }
     else {
+        char elem;
         TX_BEGIN(m_pool) {
             TX_ADD_DIRECT(&D_RW(pstack)->elements[D_RO(pstack)->counter - 1]);
             TX_ADD_DIRECT(&D_RW(pstack)->counter);
 
             D_RW(pstack)->counter--;
-            return D_RW(pstack)->elements[D_RW(pstack)->counter];
+            elem = D_RW(pstack)->elements[D_RW(pstack)->counter];
         } TX_END
+        return elem;
     }
     return '0';
 }
