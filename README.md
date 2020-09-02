@@ -2,7 +2,7 @@
 
 ## wichtig
 * Alles auf C++ und Klassen umstellen
-* tjp->proceed() im Advice wird nicht ausgeführt?
+* Transaktion in advice überhaupt möglich? jmp_buf wird angelegt, dann proceed() ausgeführt und erst danach u.U. longjmp ausgeführt. Kontextwechsel zwischenzeitlich und           stackframe nichtmehr valide?
 
 ## nicht so wichtig
 * Unit tests einbauen
