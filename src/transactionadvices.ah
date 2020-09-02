@@ -42,7 +42,7 @@ aspect transactions {
             }
             if (OID_IS_NULL(*obj)) {
                 transactional_attr_usage();
-                printf("%s\n", "Warning: No transactional context provided");
+                log_warn("No Transactional Context provided");
                 // Do not hinder the flow ot the program at this point
                 tjp->proceed();
             }
@@ -62,7 +62,7 @@ aspect transactions {
             }
         }
         else {
-            printf("%s\n", "Transactional context is not yet supported for read functions");
+            log_warn("Transactional behavior not yet supported for read functions");
             tjp->proceed();
         }
     }
