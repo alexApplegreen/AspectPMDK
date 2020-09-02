@@ -1,6 +1,9 @@
 # TODOs
 
+## wichtig
+* Alles auf C++ und Klassen umstellen
+* tjp->proceed() im Advice wird nicht ausgeführt?
+
+## nicht so wichtig
 * Unit tests einbauen
-* Logging in AOPstack, AOPstacktest und transactionadvices.ah einbauen
-* memorypool in Advice ist NULL
 * assertions in stacks einbauen

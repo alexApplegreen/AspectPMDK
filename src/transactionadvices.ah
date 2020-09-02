@@ -27,43 +27,33 @@ aspect transactions {
     */
     advice execution(transaction()) : around() {
 
-        if (tjp->result() == 0) {
-            int num_args = tjp->args();
-            assert(num_args > 0 && transactional_attr_usage());
+        int num_args = tjp->args();
+        assert(num_args > 0 && transactional_attr_usage());
 
-            // search oid in parameter list
-            int i = 0;
-            PMEMoid* obj;
-            for (; i < num_args; i++) {
-                obj = (PMEMoid*)tjp->arg(i);
-                if (!OID_IS_NULL(*obj)) {
-                    break;
-                }
-            }
-            if (OID_IS_NULL(*obj)) {
-                transactional_attr_usage();
-                log_warn("No Transactional Context provided");
-                // Do not hinder the flow ot the program at this point
-                tjp->proceed();
-            }
-            else {
-                // PMEMoid is arg with index i;
-                PMEMobjpool* pool = pmemobj_pool_by_oid(*obj);
-
-                // TODO transaction is somehow killing the program flow
-                TX_BEGIN(pool) {
-                    pmemobj_tx_add_range_direct(obj, sizeof(&obj));
-                    tjp->proceed();
-                }
-                TX_ONABORT {
-                    // TODO
-                }
-                TX_END
+        // search oid in parameter list
+        int i = 0;
+        PMEMoid* obj;
+        for (; i < num_args; i++) {
+            obj = (PMEMoid*)tjp->arg(i);
+            if (!OID_IS_NULL(*obj)) {
+                break;
             }
         }
-        else {
-            log_warn("Transactional behavior not yet supported for read functions");
+        if (OID_IS_NULL(*obj)) {
+            transactional_attr_usage();
+            log_warn("No Transactional Context provided");
+            // Do not hinder the flow ot the program at this point
             tjp->proceed();
+        }
+        else {
+            // PMEMoid is arg with index i;
+            PMEMobjpool* pool = pmemobj_pool_by_oid(*obj);
+
+            // TODO transaction is somehow killing the program flow
+            // pmemobj_tx_add_range_direct(obj, sizeof(&obj));
+            // proceed geht kaputt in TX_ macros
+            tjp->proceed();
+
         }
     }
 };
