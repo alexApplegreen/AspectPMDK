@@ -15,6 +15,11 @@
 #include <setjmp.h>
 #include "attribute.ah"
 #include "util/log.h"
+#include <libpmemobj++/transaction.hpp>
+#include <libpmemobj++/p.hpp>
+#include <libpmemobj++/persistent_ptr.hpp>
+#include <libpmemobj++/utils.hpp>
+
 
 aspect transactions {
 
@@ -47,29 +52,21 @@ aspect transactions {
             tjp->proceed();
         }
         else {
-            // TODO maybe do transaction with C++ bindings?
             // PMEMoid is arg with index i;
             PMEMobjpool* pool = pmemobj_pool_by_oid(*obj);
+            auto pop = new pmem::obj::pool_base(pool);
 
-            // TODO snapshot kann nicht angelegt werden, da longjmp erst nach
-            //      proceed() aufgerufen wird        
-            jmp_buf env;
-            if (setjmp(env) != 0) {
-                perror("setjmp");
+            // TODO Transaction bricht ab?
+            try {
+                pmem::obj::transaction::run(*pop, [&]() {
+                    pmemobj_tx_add_range_direct(obj, sizeof(&obj));
+                    tjp->proceed();
+                });
             }
-            pmemobj_tx_begin(pool, env);
-            if (pmemobj_tx_stage() == TX_STAGE_WORK) {
-                pmemobj_tx_add_range_direct(obj, sizeof(&obj));
-                tjp->proceed();
-                // continue to next stage
-                pmemobj_tx_commit();
-                pmemobj_tx_process();
-                pmemobj_tx_end();
+            catch (pmem::transaction_error err) {
+                log_error(err.what());
             }
-            // TX_ONABORT
-            else if (pmemobj_tx_stage() == TX_STAGE_ONABORT) {
-                log_error("Transaction cannot be started");
-            }
+
         }
     }
 };
