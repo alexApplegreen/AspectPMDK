@@ -62,7 +62,7 @@ welche zu dazu führten sollen dann dokumentiert und erklärt werden.
 * 1 Kapitel der Ausarbeitung
 * Funktionierende Software Units.
 
-## Integration / Evaluierung
+## Integration / Evaluierung (Monat 3)
 Zuletzt soll die Software auf der realen Hardware getestet werden. Für diesen Zweck müssen wahrscheinlich eigene
 Tests abseits der Unit Tests geschrieben werden.
 Außerdem soll in dieser Phase eine Gegenüberstellung zwischen meiner Software und der C++ API des PMDK
