@@ -93,7 +93,7 @@ void push(PMEMoid pstack_oid, char elem) {
     TOID_ASSIGN(pstack, pstack_oid);
 
     if (D_RO(pstack)->counter >= D_RO(pstack)->maxsize) {
-        log_error("%s\n", "Stack is full");
+        log_error("Stack is full");
     }
     else {
         TX_BEGIN(m_pool) {
@@ -117,7 +117,7 @@ char pop(PMEMoid pstack_oid) {
     TOID_ASSIGN(pstack, pstack_oid);
 
     if (isEmpty(pstack_oid)) {
-        log_error("%s\n", "Stack is emtpy");
+        log_error("Stack is emtpy");
     }
     else {
         char elem;

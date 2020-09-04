@@ -15,10 +15,6 @@
 #include <setjmp.h>
 #include "attribute.ah"
 #include "util/log.h"
-#include <libpmemobj++/transaction.hpp>
-#include <libpmemobj++/p.hpp>
-#include <libpmemobj++/persistent_ptr.hpp>
-#include <libpmemobj++/utils.hpp>
 
 
 aspect transactions {
@@ -54,19 +50,16 @@ aspect transactions {
         else {
             // PMEMoid is arg with index i;
             PMEMobjpool* pool = pmemobj_pool_by_oid(*obj);
-            auto pop = new pmem::obj::pool_base(pool);
 
-            // TODO Transaction bricht ab?
-            try {
-                pmem::obj::transaction::run(*pop, [&]() {
-                    pmemobj_tx_add_range_direct(obj, sizeof(&obj));
-                    tjp->proceed();
-                });
+            // wrap Transaction around function execution
+            TX_BEGIN(pool) {
+                pmemobj_tx_add_range(*obj, 0, sizeof(&obj));
+                tjp->proceed();
             }
-            catch (pmem::transaction_error err) {
-                log_error(err.what());
+            TX_ONABORT {
+                log_error("Transaction was aborted");
             }
-
+            TX_END
         }
     }
 };

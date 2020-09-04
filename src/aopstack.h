@@ -78,8 +78,8 @@ int init(PMEMobjpool* pool, void* ptr, void* args) {
 PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
 
     m_pool = pool;
-    // initialize Stack
-    PMEMoid pstack_oid;
+    // initialize Stack as root object
+    PMEMoid pstack_oid = pmemobj_root(pool, sizeof(struct pstack));
     pmemobj_alloc(m_pool, &pstack_oid, sizeof(struct pstack), 1, init, (void*)size);
 
     return pstack_oid;

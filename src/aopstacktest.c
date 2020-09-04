@@ -5,6 +5,7 @@
 #include "util/log.h"
 
 #define POOL "/mempool"
+#define LAYOUT "STACK"
 
 int tests();
 
@@ -24,13 +25,16 @@ int tests() {
     // create memorypool
     PMEMobjpool* pool;
     if (!(pool = pmemobj_open(POOL, ""))) {
-        if (!(pool = pmemobj_create(POOL, "", PMEMOBJ_MIN_POOL, 0600))) {
+        if (!(pool = pmemobj_create(POOL, "", PMEMOBJ_MIN_POOL, 0666))) {
             perror("pmemobj_create");
             exit(-1);
         }
     }
 
     PMEMoid stack = getInstance(10, pool);
+
+    // Make stack root element so that it can be found in subsequent calls
+
 
     if (OID_IS_NULL(stack)) {
         passed--;
@@ -45,17 +49,12 @@ int tests() {
     push(stack, 'A');
     push(stack, 'H');
 
-    char hello[6];
-    // should print "Hallo"
-    for (int i = 0; i < 5; i++) {
-        hello[i] = pop(stack);
-    }
-    hello[5] = '\0';
-
-    if (strcmp(hello, "HALLO") != 0) {
+    if (isEmpty(stack)) {
         passed--;
-        log_error("Pushing and popping does not work correctly");
+        log_error("Stack is Empty after pushing inside");
     }
+
+    pmemobj_close(pool);
 
     return passed;
 }
