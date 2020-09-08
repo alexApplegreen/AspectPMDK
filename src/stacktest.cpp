@@ -1,51 +1,37 @@
 #include "stack.h"
 #include <stdio.h>
 #include "util/log.h"
+#include <gtest/gtest.h>
 
-int passed = 0;
 
-int main(int argc, char const *argv[]) {
+// The fixture for testing class Foo.
+class StackTest : public ::testing::Test {
 
-    // init stack
+protected:
+
+    void SetUp() override {
+     // Code here will be called immediately after the constructor (right
+     // before each test).
+    }
+
+    void TearDown() override {
+     // Code here will be called immediately after each test (right
+     // before the destructor).
+    }
+
+    // Class members declared here can be used by all tests in the test suite
+    // for Foo.
     Stack stack(10);
+};
 
-    // push too many elements
-    char elem = 'A';
-    bool exception = false;
-    try {
-        for (int i = 0; i < 11; i++) {
-            stack.push(elem);
-        }
-    }
-    catch (std::runtime_error) {
-        exception = true;
+    // Tests that Foo does Xyz.
+    TEST_F(StackTest, DoesThings) {
+        stack.push('A');
+        EXPECT_EQ(stack.pop(), 'A');
     }
 
-    if (!exception) {
-        passed--;
-        log_error("Exception not thrown");
-    }
-    exception = false;
 
-    if (passed == 0) {
-        log_info("All tests passed");
-    }
-
-    try {
-        for (int i = 0; i < 11; i++) {
-            stack.pop();
-        }
-    }
-    catch (std::runtime_error) {
-        exception = true;
-    }
-
-    if (!exception) {
-        passed--;
-        log_error("Exception not thrown");
-    }
-
-    
-
-    return 0;
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
