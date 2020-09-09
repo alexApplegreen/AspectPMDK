@@ -1,62 +1,52 @@
-/*!
-   \file stack.h
-   \brief Regular Stack implementation using an array
-   \author Alexander Tepe
-*/
+#ifndef STACK_H
+#define STACK_H
 
 #include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <stdexcept>
+#include "util/log.h"
+#include <assert.h>
 
-struct STACK {
-    char*           elements;
-    uint64_t        maxsize;
-    uint64_t        counter;
+class Stack {
+
+public:
+
+    Stack(uint64_t size) {
+        this->m_maxsize = size;
+        this->m_elements[size];
+        this->m_counter = 0;
+    }
+
+    void push(char elem) {
+        if (this->m_counter == m_maxsize) {
+            throw std::runtime_error("Stack is full");
+        }
+        else {
+            this->m_elements[this->m_counter] = elem;
+            this->m_counter++;
+        }
+    }
+
+    char pop() {
+        if (this->m_counter == 0) {
+            throw std::runtime_error("Stack is empty");
+        }
+        else {
+            this->m_counter--;
+            char elem = this->m_elements[this->m_counter];
+            return elem;
+        }
+    }
+
+    bool isEmpty() {
+        return this->m_counter == 0;
+    }
+
+private:
+
+    uint64_t                m_counter;
+    uint64_t                m_maxsize;
+    char                    m_elements[];
+
 };
-
-/*!
-   \brief Constructor which returns a pointer to a stack struct
-   \param Size of Stack
-   \return "Return of the function"
-*/
-struct STACK* getInstance(int size) {
-    struct STACK* stack = malloc(sizeof(struct STACK));
-    stack->maxsize = size;
-    stack->elements = malloc(size * sizeof(char));
-    stack->counter = 0;
-    return stack;
-}
-
-/// adds element to stack
-void push(struct STACK* stack, char elem) {
-    if (stack->counter >= stack->maxsize) {
-        printf("%s\n", "Stack is full!");
-    }
-    else {
-        stack->elements[stack->counter] = elem;
-        stack->elements++;
-    }
-}
-
-/// gets element from stack according to FIFO principle
-char pop(struct STACK* stack) {
-    if (stack->counter == 0) {
-        printf("%s\n", "Stack is empty");
-    }
-    else {
-        char elem = stack->elements[stack->counter];
-        stack->counter--;
-        return elem;
-    }
-    return '0';
-}
-
-/*!
-   \brief Checks if given Stack is empty
-   \param Pointer to Stack
-   \return 0 if stack is empty
-*/
-int isEmpty(struct STACK* stack) {
-    return stack->counter == 0;
-}
+#endif
