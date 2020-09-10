@@ -1,6 +1,6 @@
 aspect HelloAspect {
 
-    advice execution("void %::hello()") : before() {
+    advice execution("void %::say_hello()") : before() {
         printf("%s", "Hallo");
     }
-}
+};
