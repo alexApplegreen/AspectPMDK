@@ -79,10 +79,8 @@ PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
 
     m_pool = pool;
     // initialize Stack as root object
-    PMEMoid pstack_oid;
+    PMEMoid pstack_oid = pmemobj_root(m_pool, sizeof(struct pstack) + size * sizeof(char));
     pmemobj_alloc(m_pool, &pstack_oid, sizeof(struct pstack), 1, init, (void*)size);
-
-    pmemobj_root(m_pool, sizeof(struct pstack) + (size * sizeof(char)));
 
     return pstack_oid;
 }
@@ -93,7 +91,6 @@ PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
    \param pstack_oid: PMEMoid stack wrapper
           elem: char to push into stack
 */
-// TODO make function behave transactional by using advices
 [[AOP::transactional]]
 void push(PMEMoid pstack_oid, char elem) {
 
@@ -113,7 +110,6 @@ void push(PMEMoid pstack_oid, char elem) {
    \param PMEMoid Stack wrapper
    \return the next char stored in the Stack
 */
-// TODO Transactional behavior through advice
 [[AOP::transactional]]
 char pop(PMEMoid pstack_oid) {
 
