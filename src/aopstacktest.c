@@ -4,7 +4,7 @@
 #include <string.h>
 #include "util/log.h"
 
-#define POOL "/mempool"
+#define POOL "/mempool1"
 #define LAYOUT "STACK"
 
 int tests();
@@ -24,17 +24,15 @@ int tests() {
     int passed = 0;
     // create memorypool
     PMEMobjpool* pool;
-    if (!(pool = pmemobj_open(POOL, ""))) {
-        if (!(pool = pmemobj_create(POOL, "", PMEMOBJ_MIN_POOL, 0666))) {
+    if (!(pool = pmemobj_open(POOL, LAYOUT))) {
+        if (!(pool = pmemobj_create(POOL, LAYOUT, PMEMOBJ_MIN_POOL, 0666))) {
             perror("pmemobj_create");
             exit(-1);
         }
     }
 
+    // Instanz erzeugen, Konstruktor ruft pmemobj_root() auf
     PMEMoid stack = getInstance(10, pool);
-
-    // Make stack root element so that it can be found in subsequent calls
-
 
     if (OID_IS_NULL(stack)) {
         passed--;
@@ -53,8 +51,6 @@ int tests() {
         passed--;
         log_error("Stack is Empty after pushing inside");
     }
-
-    pmemobj_close(pool);
 
     return passed;
 }
