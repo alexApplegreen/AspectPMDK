@@ -4,7 +4,7 @@
 #include <string.h>
 #include "util/log.h"
 
-#define POOL "/mempool1"
+#define POOL "/mempool2"
 #define LAYOUT "STACK"
 
 int tests();

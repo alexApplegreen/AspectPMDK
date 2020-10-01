@@ -2,7 +2,7 @@
 #include "aopstack.h"
 #include "util/log.h"
 
-#define POOL "/mempool1"
+#define POOL "/mempool2"
 #define LAYOUT "STACK"
 
 int main(int argc, char const *argv[]) {
@@ -17,6 +17,8 @@ int main(int argc, char const *argv[]) {
 
     // ZU diesem Zeitpunkt muss Stack schon im Speicher existieren, also kein zweiter Parameter
     PMEMoid stack = pmemobj_root(pool, pmemobj_root_size(pool));
+
+
 
     if (OID_IS_NULL(stack)) {
         perror("pmemobj_root");

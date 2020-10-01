@@ -57,7 +57,7 @@ aspect transactions {
                 tjp->proceed();
             }
             TX_ONABORT {
-                log_error("Transaction was aborted");
+                log_warn("Transaction was aborted");
             }
             TX_END
         }
