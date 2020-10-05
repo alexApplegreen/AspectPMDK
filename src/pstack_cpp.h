@@ -9,6 +9,7 @@
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/pool.hpp>
+#include <libpmemobj.h>
 
 class PStack {
 
@@ -21,7 +22,7 @@ public:
     }
 
     ~PStack() {
-        // TODO
+        free(this->m_elements);
     }
 
     void push(char elem) {
