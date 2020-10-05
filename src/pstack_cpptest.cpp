@@ -30,5 +30,21 @@ int tests() {
 
     PStack stack(10, pool);
 
+    if (!stack.isEmpty()) {
+        passed--;
+        log_error("Stack is not empty initially");
+    }
+
+    stack.push('O');
+    stack.push('L');
+    stack.push('L');
+    stack.push('A');
+    stack.push('H');
+
+    if (stack.isEmpty()) {
+        log_error("Cannot push to stack");
+        passed--;
+    }
+
     return passed;
 }

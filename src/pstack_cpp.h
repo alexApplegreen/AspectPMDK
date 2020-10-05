@@ -22,7 +22,8 @@ public:
     }
 
     ~PStack() {
-        free(this->m_elements);
+        // TODO wie löschen?
+        // pmem::obj::delete_persistent(this->m_elements, sizeof(this->m_elements));
     }
 
     void push(char elem) {
