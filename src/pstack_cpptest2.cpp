@@ -32,6 +32,7 @@ int tests() {
     }
 
     try {
+        // TODO wirft keinen Fehler aber Stack ist an dieser Stelle leer
         PStack* stack = pop.pmem::obj::pool<PStack>::root().get();
 
         if (stack->isEmpty()) {

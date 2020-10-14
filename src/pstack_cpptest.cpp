@@ -5,6 +5,7 @@
 
 #define POOL "./mempooltestdroelf"
 
+// TODO kommt mir unschön vor.
 struct root {
     PStack stack;
 };
@@ -32,6 +33,7 @@ int tests() {
         }
     }
 
+    // TODO Das muss irgendwie schöner gehen
     auto pop = pmem::obj::pool_base(pool);
     PStack stack(10, pop);
 
