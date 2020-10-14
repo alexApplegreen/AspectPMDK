@@ -1,3 +1,6 @@
+stack:
+	g++ src/stacktest.cpp src/util/catch.hpp src/util/log.h -o stacktest -g
+
 pstack:
 	gcc src/pstacktest.c src/util/log.c -lpmemobj -o pstacktest -g
 

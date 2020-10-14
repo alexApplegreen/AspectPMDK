@@ -1,7 +1,7 @@
+#define CATCH_CONFIG_MAIN
+
 #include "util/catch.hpp"
 #include "stack.h"
-
-#define CATCH_CONFIG_MAIN
 
 Stack stack(10);
 
