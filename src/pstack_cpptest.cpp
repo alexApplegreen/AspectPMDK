@@ -3,7 +3,11 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj.h>
 
-#define POOL "./mempooltest"
+#define POOL "./mempooltestdrölf"
+
+struct root {
+    PStack stack;
+};
 
 int tests();
 
@@ -20,15 +24,22 @@ int main(int argc, char const *argv[]) {
 int tests() {
     int passed = 0;
 
-    pmem::obj::pool_base pool;
-    try {
-        pool = pmem::obj::pool_base::open(POOL, "");
-    }
-    catch (pmem::pool_error e) {
-        pool = pmem::obj::pool_base::create(POOL, "", PMEMOBJ_MIN_POOL, 0666);
+    PMEMobjpool* pool;
+    if (!(pool = pmemobj_open(POOL, ""))) {
+        if (!(pool = pmemobj_create(POOL, "", PMEMOBJ_MIN_POOL, 0666))) {
+            perror("pmemobj_create");
+            exit(-1);
+        }
     }
 
-    PStack stack(10, pool);
+    auto pop = pmem::obj::pool_base(pool);
+    PStack stack(10, pop);
+
+    PMEMoid root_oid = pmemobj_root(pool, sizeof(struct root));
+    struct root* root = (struct root*)pmemobj_direct(root_oid);
+
+    // TODO ist das hier Quatsch?
+    root->stack = stack;
 
     if (!stack.isEmpty()) {
         passed--;

@@ -1,6 +1,8 @@
 #ifndef PSTACK_CLASS_H
 #define PSTACK_CLASS_H
 
+#define STACK_MAXSIZE 1024
+
 #include <inttypes.h>
 #include "util/log.h"
 #include <stdexcept>
@@ -17,7 +19,6 @@ public:
     PStack(uint64_t size, pmem::obj::pool_base pop) {
         this->m_pop = pop;
         this->m_maxsize = size;
-        this->m_elements[size];
         this->m_counter = 0;
     }
 
@@ -63,10 +64,13 @@ public:
     }
 
 private:
+    // TODO muss der pool auch persistiert werden?
     pmem::obj::pool_base                                m_pop;
+    // geht nicht:
+    // pmem::obj::persistent_ptr<pool_base>
     pmem::obj::p<uint64_t>                              m_counter;
     pmem::obj::p<uint64_t>                              m_maxsize;
-    pmem::obj::p<char>                                  m_elements[];
+    pmem::obj::p<char>                                  m_elements[STACK_MAXSIZE];
 
 };
 #endif
