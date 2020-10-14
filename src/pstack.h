@@ -75,9 +75,8 @@ int init(PMEMobjpool* pool, void* ptr, void* args) {
 PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
 
     m_pool = pool;
-    // initialize Stack
-    PMEMoid pstack_oid;
-    pmemobj_alloc(m_pool, &pstack_oid, sizeof(struct pstack), 1, init, (void*)size);
+    // initialize Stack as root object
+    PMEMoid pstack_oid = pmemobj_root_construct(m_pool, sizeof(struct pstack), init, (void*)size);
 
     return pstack_oid;
 }
@@ -135,5 +134,7 @@ char pop(PMEMoid pstack_oid) {
 
 /// Check if Stack is empty
 int isEmpty(PMEMoid pstack_oid) {
-    return D_RO(pstack)->counter <= 0;
+    TOID_ASSIGN(pstack, pstack_oid);
+
+    return D_RO(pstack)->counter == 0;
 }

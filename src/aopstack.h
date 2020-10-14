@@ -52,7 +52,6 @@ struct pstack {
    \return 0 on successful completion
 */
 int init(PMEMobjpool* pool, void* ptr, void* args) {
-    log_info("Calling init fuction");
     intptr_t size = (intptr_t)args;
     PMEMoid stack_oid = pmemobj_oid(ptr);
     TOID_ASSIGN(pstack, stack_oid);
@@ -81,7 +80,6 @@ PMEMoid getInstance(uint64_t size, PMEMobjpool* pool) {
     m_pool = pool;
     // initialize Stack as root object
     PMEMoid pstack_oid = pmemobj_root_construct(m_pool, sizeof(struct pstack), init, (void*)size);
-    // pmemobj_alloc(m_pool, &pstack_oid, sizeof(struct pstack), 1, init, (void*)size);
 
     return pstack_oid;
 }
