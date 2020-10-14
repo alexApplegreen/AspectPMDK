@@ -3,7 +3,7 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj.h>
 
-#define POOL "./mempooltestdrölf"
+#define POOL "./mempooltestdroelf"
 
 struct root {
     PStack stack;

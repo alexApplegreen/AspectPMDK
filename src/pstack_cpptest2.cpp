@@ -3,7 +3,7 @@
 
 #include <libpmemobj++/pool.hpp>
 
-#define POOL "./mempooltestdrölf"
+#define POOL "./mempooltestdroelf"
 
 int tests();
 
