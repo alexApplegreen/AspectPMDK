@@ -1,50 +1,48 @@
-#include "pstack_cpp.h"
-#include "util/log.h"
-
-#include <libpmemobj++/pool.hpp>
-
+#define CATCH_CONFIG_MAIN
 #define POOL "./mempooltestdroelf"
 
-int tests();
+#include "pstack_cpp.h"
+#include "util/log.h"
+#include "util/catch.hpp"
+#include <libpmemobj++/pool.hpp>
 
-int main(int argc, char const *argv[]) {
+pmem::obj::pool<PStack> pop;
 
-    if (tests() == 0) {
-        log_info("All tests passed");
-    }
-    else {
-        log_warn("Some tests failed");
-    }
+struct MyListener : Catch::TestEventListenerBase {
 
-    return 0;
-}
+    using TestEventListenerBase::TestEventListenerBase;
 
-int tests() {
-
-    int passed = 0;
-
-    pmem::obj::pool<PStack> pop;
-    try {
-        pop = pmem::obj::pool<PStack>::open(POOL, "");
-    }
-    catch (pmem::pool_error e) {
-        log_error("Cannot open pool");
-    }
-
-    try {
-        // TODO wirft keinen Fehler aber Stack ist an dieser Stelle leer
-        PStack* stack = pop.pmem::obj::pool<PStack>::root().get();
-
-        if (stack->isEmpty()) {
-            passed--;
-            log_error("Stack is Empty");
+    void testRunStarting(Catch::TestRunInfo const& testRunInfo) override {
+        try {
+            pop = pmem::obj::pool<PStack>::open(POOL, "");
+        }
+        catch (pmem::pool_error e) {
+            log_error("cannot open pool");
         }
     }
-    catch (pmem::pool_error e) {
-        log_error("Cannot get root object");
+
+    void testRunEnded(Catch::TestRunStats const& testRunStats) override {
+        while(!pop.root().get()->isEmpty()) {
+            pop.root().get()->pop();
+        }
+        pop.persist(pop.root());
+        pop.close();
     }
+};
+CATCH_REGISTER_LISTENER(MyListener)
 
-    pop.close();
+TEST_CASE("contains Data", "[Stack]") {
+    REQUIRE_FALSE(pop.root().get()->isEmpty());
+}
 
-    return passed;
+TEST_CASE("contains correct data", "[Stack]") {
+    char hallo[6];
+    while(!pop.root().get()->isEmpty()) {
+        int i = 0;
+        hallo[i] = pop.root().get()->pop();
+        i++;
+    }
+    hallo[5] = '\0';
+
+    REQUIRE(strcmp(hallo, "HALLO") == 0);
 }

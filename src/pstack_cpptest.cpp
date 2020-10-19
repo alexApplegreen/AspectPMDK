@@ -1,57 +1,81 @@
+#define CATCH_CONFIG_MAIN
 #define POOL "./mempooltestdroelf"
 
 #include "util/log.h"
 #include "pstack_cpp.h"
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj.h>
+#include "util/catch.hpp"
 
-int tests();
+pmem::obj::pool<PStack> pop;
 
-int main(int argc, char const *argv[]) {
-    if (tests() == 0) {
-        log_info("All tests passed");
+struct MyListener : Catch::TestEventListenerBase {
+
+    using TestEventListenerBase::TestEventListenerBase;
+
+    void testRunStarting(Catch::TestRunInfo const& testRunInfo) override {
+        try {
+            pop = pmem::obj::pool<PStack>::create(POOL, "", PMEMOBJ_MIN_POOL);
+        }
+        catch (pmem::pool_error e) {
+            pop = pmem::obj::pool<PStack>::open(POOL, "");
+        }
+
+        pmem::obj::persistent_ptr<PStack> stack_ptr = pop.root();
+        PStack* stack = stack_ptr.get();
+        stack = new PStack(10);
+
+        pop.persist(stack_ptr);
     }
-    else {
-        log_warn("Some tests failed");
+
+    void testCaseStarting(Catch::TestCaseInfo const& testInfo) override {
+        while(!pop.root().get()->isEmpty()) {
+            pop.root().get()->pop();
+        }
+        pop.persist(pop.root());
     }
-    return 0;
+
+    void testRunEnded(Catch::TestRunStats const& testRunStats) override {
+        // prep persistent Stack for subsequent test of persistent properties
+        pop.root().get()->push('O');
+        pop.root().get()->push('L');
+        pop.root().get()->push('L');
+        pop.root().get()->push('A');
+        pop.root().get()->push('H');
+
+        pop.close();
+    }
+};
+CATCH_REGISTER_LISTENER(MyListener)
+
+TEST_CASE("is empty initially", "[Stack]") {
+    REQUIRE(pop.root().get()->isEmpty());
 }
 
-int tests() {
-    int passed = 0;
+TEST_CASE("Can push / pop", "[Stack]") {
+    pop.root().get()->push('A');
+    REQUIRE_FALSE(pop.root().get()->isEmpty());
 
-    pmem::obj::pool<PStack> pop;
+    char elem = pop.root().get()->pop();
+    REQUIRE(elem == 'A');
+}
 
-    try {
-        pop = pmem::obj::pool<PStack>::create(POOL, "", PMEMOBJ_MIN_POOL);
-    }
-    catch (pmem::pool_error e) {
-        pop = pmem::obj::pool<PStack>::open(POOL, "");
-    }
-
-    pmem::obj::persistent_ptr<PStack> stack_ptr = pop.root();
-    PStack* stack = stack_ptr.get();
-    stack = new PStack(10);
-
-    pop.persist(stack_ptr);
-
-    if (!pop.root().get()->isEmpty()) {
-        passed--;
-        log_error("Stack is not empty initially");
-    }
-
+TEST_CASE("FIFO Works", "[Stack]") {
     pop.root().get()->push('O');
     pop.root().get()->push('L');
     pop.root().get()->push('L');
     pop.root().get()->push('A');
     pop.root().get()->push('H');
 
-    if (pop.root().get()->isEmpty()) {
-        log_error("Cannot push to stack");
-        passed--;
+    char hallo[6];
+    while(!pop.root().get()->isEmpty()) {
+        int i = 0;
+        hallo[i] = pop.root().get()->pop();
+        i++;
     }
+    hallo[5] = '\0';
 
-    pop.close();
+    log_debug(hallo);
 
-    return passed;
+    REQUIRE(strcmp(hallo, "HALLO") == 0);
 }
