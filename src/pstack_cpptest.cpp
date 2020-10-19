@@ -1,10 +1,12 @@
 #define CATCH_CONFIG_MAIN
 #define POOL "./mempooltestdroelf"
+#define POOL_TEST "./mempooltestinternal"
 
 #include "util/log.h"
 #include "pstack_cpp.h"
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj.h>
+#include <stdexcept>
 #include "util/catch.hpp"
 
 pmem::obj::pool<PStack> pop;
@@ -43,6 +45,7 @@ struct MyListener : Catch::TestEventListenerBase {
         pop.root().get()->push('A');
         pop.root().get()->push('H');
 
+        pop.persist(pop.root());
         pop.close();
     }
 };
@@ -60,6 +63,38 @@ TEST_CASE("Can push / pop", "[Stack]") {
     REQUIRE(elem == 'A');
 }
 
+TEST_CASE("Constructor Tests", "[Stack]") {
+
+    SECTION("Constructor throws Exception") {
+        REQUIRE_THROWS_WITH([&]() {
+            PStack stack(2048);
+        }(), "Stacksize exceeds 1 kB");
+    }
+
+    SECTION("Constructor delegation works") {
+        pmem::obj::pool<PStack> pop_internal;
+
+        try {
+            pop_internal = pmem::obj::pool<PStack>::create(POOL, "", PMEMOBJ_MIN_POOL);
+        }
+        catch (pmem::pool_error e) {
+            pop_internal = pmem::obj::pool<PStack>::open(POOL, "");
+        }
+
+        pmem::obj::persistent_ptr<PStack> stack_ptr = pop_internal.root();
+        PStack* stack = stack_ptr.get();
+        stack = new PStack();
+
+        pop.persist(stack_ptr);
+
+        REQUIRE_NOTHROW([&]() {
+            for (int i = 0; i < STACK_MAXSIZE; i++) {
+                pop_internal.root().get()->push('X');
+            }
+        }());
+    }
+}
+
 TEST_CASE("FIFO Works", "[Stack]") {
     pop.root().get()->push('O');
     pop.root().get()->push('L');
@@ -74,8 +109,6 @@ TEST_CASE("FIFO Works", "[Stack]") {
         i++;
     }
     hallo[5] = '\0';
-
-    log_debug(hallo);
 
     REQUIRE(strcmp(hallo, "HALLO") == 0);
 }
