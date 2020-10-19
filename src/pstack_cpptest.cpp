@@ -63,38 +63,6 @@ TEST_CASE("Can push / pop", "[Stack]") {
     REQUIRE(elem == 'A');
 }
 
-TEST_CASE("Constructor Tests", "[Stack]") {
-
-    SECTION("Constructor throws Exception") {
-        REQUIRE_THROWS_WITH([&]() {
-            PStack stack(2048);
-        }(), "Stacksize exceeds 1 kB");
-    }
-
-    SECTION("Constructor delegation works") {
-        pmem::obj::pool<PStack> pop_internal;
-
-        try {
-            pop_internal = pmem::obj::pool<PStack>::create(POOL, "", PMEMOBJ_MIN_POOL);
-        }
-        catch (pmem::pool_error e) {
-            pop_internal = pmem::obj::pool<PStack>::open(POOL, "");
-        }
-
-        pmem::obj::persistent_ptr<PStack> stack_ptr = pop_internal.root();
-        PStack* stack = stack_ptr.get();
-        stack = new PStack();
-
-        pop.persist(stack_ptr);
-
-        REQUIRE_NOTHROW([&]() {
-            for (int i = 0; i < STACK_MAXSIZE; i++) {
-                pop_internal.root().get()->push('X');
-            }
-        }());
-    }
-}
-
 TEST_CASE("FIFO Works", "[Stack]") {
     pop.root().get()->push('O');
     pop.root().get()->push('L');
@@ -111,4 +79,39 @@ TEST_CASE("FIFO Works", "[Stack]") {
     hallo[5] = '\0';
 
     REQUIRE(strcmp(hallo, "HALLO") == 0);
+}
+
+// TODO Tests are failing
+TEST_CASE("Constructor Tests", "[Stack]") {
+
+    SECTION("Constructor throws Exception") {
+        REQUIRE_THROWS_WITH([&]() {
+            PStack stack(2048);
+        }(), "Stacksize exceeds 1 kB");
+    }
+
+    SECTION("Constructor delegation works") {
+        pmem::obj::pool<PStack> pop_internal;
+
+        try {
+            pop_internal = pmem::obj::pool<PStack>::create(POOL_TEST, "", PMEMOBJ_MIN_POOL);
+        }
+        catch (pmem::pool_error e) {
+            pop_internal = pmem::obj::pool<PStack>::open(POOL_TEST, "");
+        }
+
+        pmem::obj::persistent_ptr<PStack> stack_ptr_internal = pop_internal.root();
+        PStack* stack = stack_ptr_internal.get();
+        stack = new PStack();
+
+        pop.persist(stack_ptr_internal);
+
+        REQUIRE_NOTHROW([&]() {
+            for (int i = 0; i < STACK_MAXSIZE; i++) {
+                pop_internal.root().get()->push('X');
+            }
+        }());
+
+        pop_internal.close();
+    }
 }
