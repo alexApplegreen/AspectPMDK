@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#define POOL "/mempool"
+#define POOL "/mempooldroelf"
 
 #include "pstack.h"
 #include <stdio.h>
@@ -16,13 +16,19 @@ struct MyListener : Catch::TestEventListenerBase {
 
     void testRunStarting(Catch::TestRunInfo const& testRunInfo) override {
         if (!(pool = pmemobj_open(POOL, ""))) {
-            if (!(pool = pmemobj_create(POOL, "", PMEMOBJ_MIN_POOL, 0666))) {
-                perror("pmemobj_create");
-                exit(-1);
-            }
+            log_error("Cannot find mempool");
+            exit(-1);
         }
-        // TODO get stack from pool
-        // stack = getInstance(10, pool);
+        stack = pmemobj_root(pool, pmemobj_root_size(pool));
+        if (OID_IS_NULL(stack)) {
+            perror("pmemobj_root");
+            exit(-1);
+        }
+    }
+
+    void testRunEnded(Catch::TestRunStats const& testRunStats) override {
+        log_info("closing pool");
+        pmemobj_close(pool);
     }
 };
 CATCH_REGISTER_LISTENER(MyListener)
@@ -33,11 +39,14 @@ TEST_CASE("is present", "[Stack]") {
 }
 
 TEST_CASE("contains right stuff", "[Stack]") {
+    // TODO Segfault hier
+    REQUIRE_FALSE(isEmpty(stack));
     char hello[6];
-    while(!isEmpty(stack)) {
-        int i = 0;
+    for (int i = 0; i < 5; i++) {
         hello[i] = pop(stack);
     }
     hello[5] = '\0';
+
     REQUIRE(strcmp(hello, "HALLO") == 0);
+    REQUIRE(isEmpty(stack));
 }

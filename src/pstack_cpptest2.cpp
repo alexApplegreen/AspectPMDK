@@ -44,5 +44,7 @@ int tests() {
         log_error("Cannot get root object");
     }
 
+    pop.close();
+
     return passed;
 }

@@ -1,14 +1,9 @@
+#define POOL "./mempooltestdroelf"
+
 #include "util/log.h"
 #include "pstack_cpp.h"
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj.h>
-
-#define POOL "./mempooltestdroelf"
-
-// TODO kommt mir unschön vor.
-struct root {
-    PStack stack;
-};
 
 int tests();
 
@@ -25,39 +20,38 @@ int main(int argc, char const *argv[]) {
 int tests() {
     int passed = 0;
 
-    PMEMobjpool* pool;
-    if (!(pool = pmemobj_open(POOL, ""))) {
-        if (!(pool = pmemobj_create(POOL, "", PMEMOBJ_MIN_POOL, 0666))) {
-            perror("pmemobj_create");
-            exit(-1);
-        }
+    pmem::obj::pool<PStack> pop;
+
+    try {
+        pop = pmem::obj::pool<PStack>::create(POOL, "", PMEMOBJ_MIN_POOL);
+    }
+    catch (pmem::pool_error e) {
+        pop = pmem::obj::pool<PStack>::open(POOL, "");
     }
 
-    // TODO Das muss irgendwie schöner gehen
-    auto pop = pmem::obj::pool_base(pool);
-    PStack stack(10, pop);
+    pmem::obj::persistent_ptr<PStack> stack_ptr = pop.root();
+    PStack* stack = stack_ptr.get();
+    stack = new PStack(10);
 
-    PMEMoid root_oid = pmemobj_root(pool, sizeof(struct root));
-    struct root* root = (struct root*)pmemobj_direct(root_oid);
+    pop.persist(stack_ptr);
 
-    // TODO ist das hier Quatsch?
-    root->stack = stack;
-
-    if (!stack.isEmpty()) {
+    if (!pop.root().get()->isEmpty()) {
         passed--;
         log_error("Stack is not empty initially");
     }
 
-    stack.push('O');
-    stack.push('L');
-    stack.push('L');
-    stack.push('A');
-    stack.push('H');
+    pop.root().get()->push('O');
+    pop.root().get()->push('L');
+    pop.root().get()->push('L');
+    pop.root().get()->push('A');
+    pop.root().get()->push('H');
 
-    if (stack.isEmpty()) {
+    if (pop.root().get()->isEmpty()) {
         log_error("Cannot push to stack");
         passed--;
     }
+
+    pop.close();
 
     return passed;
 }

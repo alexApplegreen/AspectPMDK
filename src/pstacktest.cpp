@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#define POOL "/mempool"
+#define POOL "/mempooldroelf"
 
 #include "pstack.h"
 #include <stdio.h>
@@ -42,13 +42,14 @@ struct MyListener : Catch::TestEventListenerBase {
 CATCH_REGISTER_LISTENER(MyListener)
 
 TEST_CASE("Get instance", "[Stack]") {
-    REQUIRE(!OID_IS_NULL(stack));
+    REQUIRE_FALSE(OID_IS_NULL(stack));
     REQUIRE(isEmpty(stack));
 }
 
 TEST_CASE("Can push / pop", "[Stack]") {
     push(stack, 'O');
-    REQUIRE(!isEmpty(stack));
+    REQUIRE_FALSE(isEmpty(stack));
+
     char elem = pop(stack);
     REQUIRE(elem == 'O');
 }
@@ -59,10 +60,10 @@ TEST_CASE("FIFO works", "[Stack]") {
     push(stack, 'L');
     push(stack, 'A');
     push(stack, 'H');
-    REQUIRE(!isEmpty(stack));
+
+    REQUIRE_FALSE(isEmpty(stack));
 
     char hello[6];
-    // should print "Hallo"
     for (int i = 0; i < 5; i++) {
         hello[i] = pop(stack);
     }

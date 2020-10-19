@@ -10,21 +10,27 @@
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/make_persistent.hpp>
+#include <libpmemobj++/utils.hpp>
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj.h>
 
 class PStack {
 
 public:
-    PStack(uint64_t size, pmem::obj::pool_base pop) {
-        this->m_pop = pop;
+    PStack() {
+        PStack(STACK_MAXSIZE);
+    }
+
+    PStack(uint64_t size) {
+        if (size > STACK_MAXSIZE) {
+            throw new std::runtime_error("Stacksize exceeds 1 kB");
+        }
         this->m_maxsize = size;
         this->m_counter = 0;
     }
 
     ~PStack() {
-        // TODO wie löschen?
-        // pmem::obj::delete_persistent(this->m_elements, sizeof(this->m_elements));
+        pmem::obj::delete_persistent<pmem::obj::p<char>[]>(m_elements, STACK_MAXSIZE);
     }
 
     void push(char elem) {
@@ -32,13 +38,16 @@ public:
             throw std::runtime_error("Stack is full");
         }
         else {
-            pmem::obj::transaction::run(this->m_pop, [&] {
-                pmem::obj::make_persistent<uint64_t>(this->m_counter);
-                pmem::obj::make_persistent<uint64_t>(this->m_elements[this->m_counter + 1]);
-
-                this->m_elements[this->m_counter] = elem;
-                this->m_counter = this->m_counter + 1;
-            });
+            try {
+                auto pop = pmem::obj::pool_by_vptr(this);
+                pmem::obj::transaction::run(pop, [&] {
+                    this->m_elements[this->m_counter] = elem;
+                    this->m_counter = this->m_counter + 1;
+                });
+            }
+            catch (pmem::pool_error e) {
+                log_error(e.what());
+            }
         }
     }
 
@@ -48,13 +57,16 @@ public:
         }
         else {
             char elem;
-            pmem::obj::transaction::run(this->m_pop, [&] {
-                pmem::obj::make_persistent<uint64_t>(this->m_counter);
-                pmem::obj::make_persistent<uint64_t>(this->m_elements[this->m_counter - 1]);
-
-                this->m_counter = this->m_counter - 1;
-                elem = this->m_elements[this->m_counter];
-            });
+            try {
+                auto pop = pmem::obj::pool_by_vptr(this);
+                pmem::obj::transaction::run(pop, [&] {
+                    this->m_counter = this->m_counter - 1;
+                    elem = this->m_elements[this->m_counter];
+                });
+            }
+            catch (pmem::pool_error e) {
+                log_error(e.what());
+            }
             return elem;
         }
     }
@@ -64,10 +76,6 @@ public:
     }
 
 private:
-    // TODO muss der pool auch persistiert werden?
-    pmem::obj::pool_base                                m_pop;
-    // geht nicht:
-    // pmem::obj::persistent_ptr<pool_base>
     pmem::obj::p<uint64_t>                              m_counter;
     pmem::obj::p<uint64_t>                              m_maxsize;
     pmem::obj::p<char>                                  m_elements[STACK_MAXSIZE];

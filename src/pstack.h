@@ -24,9 +24,6 @@ int isEmpty(PMEMoid stack);
 TOID_DECLARE(struct pstack, 1);
 TOID(struct pstack) pstack;
 
-TOID_DECLARE(char, 2);
-TOID(char) pelem;
-
 static PMEMobjpool* m_pool;
 
 /// The internal stack which is used for FIFO storing of Data
