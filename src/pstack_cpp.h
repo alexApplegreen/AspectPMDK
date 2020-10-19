@@ -23,7 +23,7 @@ public:
 
     PStack(uint64_t size) {
         if (size > STACK_MAXSIZE) {
-            throw new std::runtime_error("Stacksize exceeds 1 kB");
+            throw new std::invalid_argument("Stacksize exceeds 1 kB");
         }
         this->m_maxsize = size;
         this->m_counter = 0;
