@@ -31,7 +31,7 @@ int tests() {
     auto root = pop.root();
     pmem::obj::persistent_ptr<PStack> stack_p = new PStack(10);
 
-    // reicht das?
+    // reicht das, um Stack zu erzeugen und als Root zu speichern?
     root = stack_p;
 
     PStack* stack = pop.root().get();

@@ -53,6 +53,7 @@ TEST_CASE("is empty initially", "[Stack]") {
     REQUIRE(pop.root().get()->isEmpty());
 }
 
+// funktioniert
 TEST_CASE("Can push / pop", "[Stack]") {
     pop.root().get()->push('A');
     REQUIRE_FALSE(pop.root().get()->isEmpty());
