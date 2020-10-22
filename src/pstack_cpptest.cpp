@@ -34,7 +34,6 @@ struct MyListener : Catch::TestEventListenerBase {
         while(!pop.root().get()->isEmpty()) {
             pop.root().get()->pop();
         }
-        pop.persist(pop.root());
     }
 
     void testRunEnded(Catch::TestRunStats const& testRunStats) override {
@@ -45,7 +44,6 @@ struct MyListener : Catch::TestEventListenerBase {
         pop.root().get()->push('A');
         pop.root().get()->push('H');
 
-        pop.persist(pop.root());
         pop.close();
     }
 };
