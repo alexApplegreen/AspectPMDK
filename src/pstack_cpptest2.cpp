@@ -7,6 +7,7 @@
 #include <libpmemobj++/pool.hpp>
 
 pmem::obj::pool<PStack> pop;
+PStack* stack;
 
 struct MyListener : Catch::TestEventListenerBase {
 
@@ -19,27 +20,28 @@ struct MyListener : Catch::TestEventListenerBase {
         catch (pmem::pool_error e) {
             log_error("cannot open pool");
         }
+
+        stack = pop.root().get();
     }
 
     void testRunEnded(Catch::TestRunStats const& testRunStats) override {
-        while(!pop.root().get()->isEmpty()) {
-            pop.root().get()->pop();
+        while(!stack->isEmpty()) {
+            stack->pop();
         }
-        pop.persist(pop.root());
         pop.close();
     }
 };
 CATCH_REGISTER_LISTENER(MyListener)
 
 TEST_CASE("contains Data", "[Stack]") {
-    REQUIRE_FALSE(pop.root().get()->isEmpty());
+    REQUIRE_FALSE(stack->isEmpty());
 }
 
 TEST_CASE("contains correct data", "[Stack]") {
     char hallo[6];
-    while(!pop.root().get()->isEmpty()) {
-        int i = 0;
-        hallo[i] = pop.root().get()->pop();
+    int i = 0;
+    while(!stack->isEmpty()) {
+        hallo[i] = stack->pop();
         i++;
     }
     hallo[5] = '\0';
