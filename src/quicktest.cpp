@@ -3,6 +3,7 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj.h>
 #include <iostream>
+#include <stdexcept>
 
 #define POOL "./mempooltestbafzigundeins"
 
@@ -29,11 +30,7 @@ int tests() {
     }
 
     auto root = pop.root();
-    pmem::obj::persistent_ptr<PStack> stack_p = new PStack(10);
-
-    // reicht das, um Stack zu erzeugen und als Root zu speichern?
-    root = stack_p;
-
+    *root = PStack(10);
     PStack* stack = pop.root().get();
 
     if (!stack->isEmpty()) {
@@ -41,7 +38,6 @@ int tests() {
         log_error("Stack is not Empty initially");
     }
 
-    // Exception: Stack is full?
     stack->push('A');
 
     char result = stack->pop();
@@ -49,6 +45,36 @@ int tests() {
         passed--;
         log_error("pushing / popping does not work");
     }
+
+    std::invalid_argument* e;
+    try {
+        *root = PStack(2048);
+    }
+    catch (std::invalid_argument* ex) {
+        e = ex;
+        if (strcmp(e->what(), "Stacksize exceeds 1 kB") != 0) {
+            passed--;
+            log_error("invalid argument not thrown");
+        }
+    }
+
+    *root = PStack();
+    stack = pop.root().get();
+
+    std::runtime_error* error;
+    try {
+        for (int i = 0; i < STACK_MAXSIZE + 1; i++) {
+            stack->push('X');
+        }
+    }
+    catch (std::runtime_error e) {
+        error = &e;
+        if (strcmp(error->what(), "Stack is full") != 0) {
+            passed--;
+            log_info("runtime error not thrown");
+        }
+    }
+
     pop.close();
     return passed;
 }

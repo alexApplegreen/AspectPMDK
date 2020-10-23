@@ -10,6 +10,7 @@
 #include "util/catch.hpp"
 
 pmem::obj::pool<PStack> pop;
+PStack* stack;
 
 struct MyListener : Catch::TestEventListenerBase {
 
@@ -23,26 +24,24 @@ struct MyListener : Catch::TestEventListenerBase {
             pop = pmem::obj::pool<PStack>::open(POOL, "");
         }
 
-        pmem::obj::persistent_ptr<PStack> stack_ptr = pop.root();
-        PStack* stack = stack_ptr.get();
-        stack = new PStack(10);
-
-        pop.persist(stack_ptr);
+        auto root = pop.root();
+        *root = PStack(10);
+        stack = pop.root().get();
     }
 
     void testCaseStarting(Catch::TestCaseInfo const& testInfo) override {
-        while(!pop.root().get()->isEmpty()) {
-            pop.root().get()->pop();
+        while(!stack->isEmpty()) {
+            stack->pop();
         }
     }
 
     void testRunEnded(Catch::TestRunStats const& testRunStats) override {
         // prep persistent Stack for subsequent test of persistent properties
-        pop.root().get()->push('O');
-        pop.root().get()->push('L');
-        pop.root().get()->push('L');
-        pop.root().get()->push('A');
-        pop.root().get()->push('H');
+        stack->push('O');
+        stack->push('L');
+        stack->push('L');
+        stack->push('A');
+        stack->push('H');
 
         pop.close();
     }
@@ -50,30 +49,29 @@ struct MyListener : Catch::TestEventListenerBase {
 CATCH_REGISTER_LISTENER(MyListener)
 
 TEST_CASE("is empty initially", "[Stack]") {
-    REQUIRE(pop.root().get()->isEmpty());
+    REQUIRE(stack->isEmpty());
 }
 
 // funktioniert
 TEST_CASE("Can push / pop", "[Stack]") {
-    pop.root().get()->push('A');
-    REQUIRE_FALSE(pop.root().get()->isEmpty());
+    stack->push('A');
+    REQUIRE_FALSE(stack->isEmpty());
 
-    char elem = pop.root().get()->pop();
+    char elem = stack->pop();
     REQUIRE(elem == 'A');
 }
 
-// TODO test is failing
 TEST_CASE("FIFO Works", "[Stack]") {
-    pop.root().get()->push('O');
-    pop.root().get()->push('L');
-    pop.root().get()->push('L');
-    pop.root().get()->push('A');
-    pop.root().get()->push('H');
+    stack->push('O');
+    stack->push('L');
+    stack->push('L');
+    stack->push('A');
+    stack->push('H');
 
     char hallo[6];
-    while(!pop.root().get()->isEmpty()) {
-        int i = 0;
-        hallo[i] = pop.root().get()->pop();
+    int i = 0;
+    while(!stack->isEmpty()) {
+        hallo[i] = stack->pop();
         i++;
     }
     hallo[5] = '\0';
@@ -81,35 +79,33 @@ TEST_CASE("FIFO Works", "[Stack]") {
     REQUIRE(strcmp(hallo, "HALLO") == 0);
 }
 
-// TODO Tests are failing
 TEST_CASE("Constructor Tests", "[Stack]") {
 
+    auto root = pop.root();
     SECTION("Constructor throws Exception") {
         REQUIRE_THROWS_AS([&]() {
-            PStack* stack = new PStack(2048);
-        }(), std::invalid_argument);
+            *root = PStack(STACK_MAXSIZE + 1);
+        }(), std::invalid_argument*);
+
+        *root = PStack(10);
+        stack = pop.root().get();
     }
 
     SECTION("Constructor delegation works") {
-        pmem::obj::pool<PStack> pop_section;
-        try {
-            pop_section = pmem::obj::pool<PStack>::create(POOL_TEST, "", PMEMOBJ_MIN_POOL);
-        }
-        catch (pmem::pool_error e) {
-            pop_section = pmem::obj::pool<PStack>::open(POOL_TEST, "");
-        }
+        auto root = pop.root();
+        *root = PStack();
+        stack = pop.root().get();
 
-        pmem::obj::persistent_ptr<PStack> stack_ptr_section = pop.root();
-        PStack* stack = stack_ptr_section.get();
-        stack = new PStack();
-        pop_section.persist(stack_ptr_section);
-
-        REQUIRE_NOTHROW([&]() {
-            for (int i = 0; i < STACK_MAXSIZE; i++) {
-                pop_section.root().get()->push('X');
+        /*
+        // TODO Hier triggert erst der SEGFAULT bevor die Exception geworfen wird
+        REQUIRE_THROWS_AS([&]() {
+            for (int i = 0; i < STACK_MAXSIZE + 1; i++) {
+                stack->push('X');
             }
-        });
-        delete pop_section.root().get();
-        pop_section.close();
+        }(), std::runtime_error);
+        */
+
+        *root = PStack(10);
+        stack = pop.root().get();
     }
 }

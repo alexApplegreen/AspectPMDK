@@ -29,10 +29,6 @@ public:
         this->m_counter = 0;
     }
 
-    ~PStack() {
-        pmem::obj::delete_persistent<pmem::obj::p<char>[]>(m_elements, STACK_MAXSIZE);
-    }
-
     void push(char elem) {
         if (this->m_counter == m_maxsize) {
             throw std::runtime_error("Stack is full");
