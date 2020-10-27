@@ -1,3 +1,4 @@
+#define CATCH_CONFIG_EXTERNAL_INTERFACES
 #define POOL "./mempooltestdroelf"
 
 #include "pstack_cpp.h"

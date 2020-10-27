@@ -1,3 +1,4 @@
+#define CATCH_CONFIG_EXTERNAL_INTERFACES
 #define POOL "./mempooltestdroelf"
 #define POOL_TEST "./mempooltestinternal"
 
@@ -95,8 +96,6 @@ TEST_CASE("Constructor Tests", "[Stack]") {
         *root = PStack();
         stack = pop.root().get();
 
-
-        // TODO Hier triggert erst der SEGFAULT bevor die Exception geworfen wird
         REQUIRE_THROWS_AS([&]() {
             for (int i = 0; i < STACK_MAXSIZE + 1; i++) {
                 stack->push('X');
