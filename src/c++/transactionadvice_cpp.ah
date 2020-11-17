@@ -1,0 +1,18 @@
+#include <libpmemobj++/pool.hpp>
+#include <libpmemobj++/transaction.hpp>
+#include "attribute_cpp.ah"
+#include "../util/log.h"
+
+aspect transaction {
+
+    pointcut transaction() = AOP_CPP::transactional();
+
+    advice execution(transaction()) : around() {
+        log_info("Advice is triggering");
+
+        auto pop = pmem::obj::pool_by_vptr(JoinPoint::That);
+        pmem::obj::transaction::run(pop, [&] {
+            tjp->proceed();
+        });
+    }
+};
