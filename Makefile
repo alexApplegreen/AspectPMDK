@@ -12,3 +12,6 @@ aopstack:
 cppstack:
 	g++ src/util/tests-main.o src/pstack_cpptest.cpp src/util/log.c -lpmemobj -g -o cppstacktest
 	g++ src/util/tests-main.o src/pstack_cpptest2.cpp src/util/log.c -lpmemobj -g -o cppstacktest2
+
+aoptest:
+	ag++ -std=c++11 src/quicktest.cpp src/util/log.c -lpmemobj -o aoptest -g

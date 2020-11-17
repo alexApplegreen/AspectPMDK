@@ -1,4 +1,4 @@
-#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_EXTERNAL_INTERFACES
 
 #include "util/catch.hpp"
 #include "stack.h"
