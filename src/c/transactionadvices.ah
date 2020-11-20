@@ -9,6 +9,9 @@
    \date 20.08.2020
 */
 
+#ifndef TRANSACTION_ADVICE_AH
+#define TRANSACTION_ADVICE_AH
+
 #include <stdio.h>
 #include <libpmemobj.h>
 #include <assert.h>
@@ -28,6 +31,8 @@ aspect transactions {
        \param "Param description"
     */
     advice execution(transaction()) : around() {
+
+        log_info("Advice triggering");
 
         int num_args = tjp->args();
         assert(num_args > 0 && transactional_attr_usage());
@@ -60,3 +65,5 @@ aspect transactions {
         }
     }
 };
+
+#endif

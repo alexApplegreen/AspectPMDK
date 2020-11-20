@@ -4,7 +4,7 @@
 #include <string.h>
 #include "../util/log.h"
 
-#define POOL "/mempool2"
+#define POOL "/mnt/pm_n1_ni/at/aopstack"
 #define LAYOUT "STACK"
 
 int tests();
@@ -14,6 +14,9 @@ int main(int argc, char const *argv[]) {
     if (tests() == 0) {
         log_info("All tests passed");
     }
+    else if(tests() == 1) {
+        log_info("tests interrupted");
+    }
     else {
         log_info("Some tests have failed");
     }
@@ -22,12 +25,14 @@ int main(int argc, char const *argv[]) {
 int tests() {
 
     int passed = 0;
+
     // create memorypool
     PMEMobjpool* pool;
-    if (!(pool = pmemobj_open(POOL, LAYOUT))) {
-        if (!(pool = pmemobj_create(POOL, LAYOUT, PMEMOBJ_MIN_POOL, 0666))) {
-            perror("pmemobj_create");
-            exit(-1);
+
+    if (!(pool = pmemobj_create(POOL, LAYOUT, PMEMOBJ_MIN_POOL, 0666))) {
+        if (!(pool = pmemobj_open(POOL, LAYOUT))) {
+            log_error("cannot create or open pool");
+            return 1;
         }
     }
 
@@ -52,5 +57,6 @@ int tests() {
         log_error("Stack is Empty after pushing inside");
     }
 
+    pmemobj_close(pool);
     return passed;
 }

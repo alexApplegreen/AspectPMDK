@@ -2,7 +2,7 @@
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj.h>
 #include "aopstack_cpp.h"
-#include "util/log.h"
+#include "../util/log.h"
 #include <iostream>
 #include <stdexcept>
 

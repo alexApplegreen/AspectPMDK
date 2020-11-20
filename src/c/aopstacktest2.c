@@ -1,8 +1,8 @@
 #include <libpmemobj.h>
 #include "aopstack.h"
-#include "util/log.h"
+#include "../util/log.h"
 
-#define POOL "/mempool2"
+#define POOL "/mnt/pm_n1_ni/at/aopstack"
 #define LAYOUT "STACK"
 
 int main(int argc, char const *argv[]) {
@@ -36,5 +36,6 @@ int main(int argc, char const *argv[]) {
     while(!isEmpty(stack)) {
         printf("%c\n", pop(stack));
     }
+    pmemobj_close(pool);
     return 0;
 }
