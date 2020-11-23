@@ -10,7 +10,7 @@
 #include <assert.h>
 #include "attribute_cpp.ah"
 
-class [[AOP_CPP::transactional]] Stack {
+class [[AOP_CPP::transactionalCpp]] Stack {
 
 public:
 
@@ -24,7 +24,6 @@ public:
         this->m_counter = 0;
     }
 
-    [[AOP_CPP::transactional]]
     void push(char elem) {
         if (this->m_counter == m_maxsize) {
             throw std::runtime_error("Stack is full");
@@ -35,7 +34,6 @@ public:
         }
     }
 
-    [[AOP_CPP::transactional]]
     char pop() {
         if (this->m_counter == 0) {
             throw std::runtime_error("Stack is empty");

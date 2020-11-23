@@ -2,7 +2,7 @@
 #define TRANSACTION_ATTR_CPP_H
 
 namespace AOP_CPP {
-    attribute transactional();
+    attribute transactionalCpp();
 }
 
 #endif

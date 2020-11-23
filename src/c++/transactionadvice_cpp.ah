@@ -1,5 +1,5 @@
-#ifndef TRANSACTION_ADVICE_AH
-#define TRANSACTION_ADVICE_AH
+#ifndef TRANSACTION_ADVICE_CPP_AH
+#define TRANSACTION_ADVICE_CPP_AH
 
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/transaction.hpp>
@@ -9,10 +9,10 @@
 
 aspect transaction_CPP {
 
-    pointcut transaction_CPP() = AOP_CPP::transactional();
+    pointcut transactionCPP() = AOP_CPP::transactionalCpp();
 
-    advice execution(transaction_CPP()) : around() {
-        log_info("Advice is triggering");
+    advice execution(transactionCPP()) : around() {
+        log_info("Advice is triggering: %s", tjp->signature());
 
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
         pmem::obj::transaction::run(pop, [&] {
