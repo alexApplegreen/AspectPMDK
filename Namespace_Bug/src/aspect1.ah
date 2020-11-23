@@ -1,0 +1,16 @@
+#ifndef TESTASPECT_ONE_AH
+#define TESTASPECT_ONE_AH
+
+#include "attribute1.ah"
+#include <iostream>
+
+aspect testAspect1 {
+
+    pointcut joinpoint1() = namespace1::attr();
+
+    advice execution(joinpoint1()) : after() {
+        std::cout << "namespace1" << std::endl;
+    }
+};
+
+#endif
