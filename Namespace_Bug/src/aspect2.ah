@@ -1,14 +1,14 @@
 #ifndef TESTASPECT_TWO_AH
 #define TESTASPECT_TWO_AH
 
-#include "attribute1.ah"
+#include "attribute2.ah"
 #include <iostream>
 
 aspect testAspect2 {
 
-    pointcut joinpoint2() = namespace2::attr();
+    pointcut pointcut2() = namespace2::attr();
 
-    advice execution(joinpoint2()) : after() {
+    advice execution(pointcut2()) : after() {
         std::cout << "namespace2" << std::endl;
     }
 };

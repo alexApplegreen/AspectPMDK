@@ -6,9 +6,9 @@
 
 aspect testAspect1 {
 
-    pointcut joinpoint1() = namespace1::attr();
+    pointcut pointcut1() = namespace1::attr();
 
-    advice execution(joinpoint1()) : after() {
+    advice execution(pointcut1()) : after() {
         std::cout << "namespace1" << std::endl;
     }
 };
