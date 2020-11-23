@@ -6,6 +6,7 @@
 #include <libpmemobj++/utils.hpp>
 #include "attribute_cpp.ah"
 #include "../util/log.h"
+#include "transactionSlice.ah"
 
 aspect transaction_CPP {
 
@@ -13,6 +14,9 @@ aspect transaction_CPP {
 
     advice execution(transactionCPP()) : around() {
         log_info("Advice is triggering: %s", tjp->signature());
+
+        log_info("displaying cloned members:");
+        tjp->target()->dump();
 
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
         pmem::obj::transaction::run(pop, [&] {

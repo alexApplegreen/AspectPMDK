@@ -1,0 +1,61 @@
+#ifndef TRANSACTION_SLICE_AH
+#define TRANSACTION_SLICE_AH
+
+template<typename MemberInfo, typename CONTEXT>
+struct MemberCopy {
+  struct EXEC {
+    struct RG : public CONTEXT::Copy {
+      // Instanz von MemberInfo erzeugen
+      typename MemberInfo::ReferredType _member;
+
+      template <typename THAT>
+      // Falls THAT ein uint8_t ist
+      typename std::enable_if<(sizeof(THAT), std::is_same<uint8_t, typename MemberInfo::ReferredType>::value)>::type
+      static dump(THAT *obj) {
+        // ZU Int casten und ausgeben
+        std::cerr << "  member " << MemberInfo::name() << ": >" << (unsigned int)*MemberInfo::pointer(obj);
+        std::cerr << "<|>" << (unsigned int)*(typename MemberInfo::ReferredType*)(((char*)MemberInfo::pointer(obj))+32) << "<\n";
+        CONTEXT::Copy::dump (obj);
+      }
+      template <typename THAT>
+      // Sonst: THAT ist char -> cast und ausgeben
+      typename std::enable_if<(sizeof(THAT), !std::is_same<uint8_t, typename MemberInfo::ReferredType>::value)>::type
+      static dump(THAT *obj) {
+        std::cerr << "  member " << MemberInfo::name() << ": >" << *MemberInfo::pointer(obj);
+        std::cerr << "<|>" << *(typename MemberInfo::ReferredType*)(((char*)MemberInfo::pointer(obj))+32) << "<\n";
+        CONTEXT::Copy::dump (obj);
+      }
+    } __attribute__((packed));
+    struct ST : public CONTEXT::Copy {
+      template <typename THAT>
+      static void dump(THAT *obj) {
+        std::cerr << "  static " << MemberInfo::name() << ": " << *MemberInfo::pointer(obj) << std::endl;
+        CONTEXT::Copy::dump (obj);
+      }
+    } __attribute__((packed));
+
+    typedef typename std::conditional<static_cast<bool>(MemberInfo::spec & AC::SPEC_STATIC), ST, RG>::type Copy;
+  };
+};
+
+template<typename MemberInfo>
+struct MemberCopy<MemberInfo, void> {
+  struct EXEC {
+    struct Copy {
+      template <typename THAT>
+      static void dump(THAT *obj) {}
+    };
+  };  // initial EXEC
+};
+
+slice struct cloned_members {
+
+    typedef JPTL::MemberIterator<JoinPoint, MemberCopy>::EXEC::Copy Copy;
+
+public:
+    void dump() {
+        Copy::dump((cloned_members*) this)
+    }
+};
+
+#endif
