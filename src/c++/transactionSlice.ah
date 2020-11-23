@@ -1,6 +1,10 @@
 #ifndef TRANSACTION_SLICE_AH
 #define TRANSACTION_SLICE_AH
 
+#include "../util/JPTL.h"
+#include "../util/log.h"
+#include <type_traits>
+
 template<typename MemberInfo, typename CONTEXT>
 struct MemberCopy {
   struct EXEC {
@@ -9,28 +13,17 @@ struct MemberCopy {
       typename MemberInfo::ReferredType _member;
 
       template <typename THAT>
-      // Falls THAT ein uint8_t ist
-      typename std::enable_if<(sizeof(THAT), std::is_same<uint8_t, typename MemberInfo::ReferredType>::value)>::type
-      static dump(THAT *obj) {
-        // ZU Int casten und ausgeben
-        std::cerr << "  member " << MemberInfo::name() << ": >" << (unsigned int)*MemberInfo::pointer(obj);
-        std::cerr << "<|>" << (unsigned int)*(typename MemberInfo::ReferredType*)(((char*)MemberInfo::pointer(obj))+32) << "<\n";
-        CONTEXT::Copy::dump (obj);
-      }
-      template <typename THAT>
-      // Sonst: THAT ist char -> cast und ausgeben
-      typename std::enable_if<(sizeof(THAT), !std::is_same<uint8_t, typename MemberInfo::ReferredType>::value)>::type
-      static dump(THAT *obj) {
-        std::cerr << "  member " << MemberInfo::name() << ": >" << *MemberInfo::pointer(obj);
-        std::cerr << "<|>" << *(typename MemberInfo::ReferredType*)(((char*)MemberInfo::pointer(obj))+32) << "<\n";
-        CONTEXT::Copy::dump (obj);
+      static void dump(THAT *obj) {
+        log_info("Member: %s %s", *MemberInfo::pointer(obj), MemberInfo::name());
+        CONTEXT::Copy::dump(obj);
       }
     } __attribute__((packed));
+
     struct ST : public CONTEXT::Copy {
       template <typename THAT>
       static void dump(THAT *obj) {
-        std::cerr << "  static " << MemberInfo::name() << ": " << *MemberInfo::pointer(obj) << std::endl;
-        CONTEXT::Copy::dump (obj);
+        log_info("Member: %s %s", *MemberInfo::pointer(obj), MemberInfo::name());
+        CONTEXT::Copy::dump(obj);
       }
     } __attribute__((packed));
 

@@ -12,6 +12,8 @@ aspect transaction_CPP {
 
     pointcut transactionCPP() = AOP_CPP::transactionalCpp();
 
+    advice AOP_CPP:transaction_CPP() : slice cloned_members;
+
     advice execution(transactionCPP()) : around() {
         log_info("Advice is triggering: %s", tjp->signature());
 
