@@ -1,6 +1,7 @@
 #include "class.h"
 #include <iostream>
 
-void main(void) {
+int main(void) {
     Testclass::printAnnotation();
+    return 0;
 }

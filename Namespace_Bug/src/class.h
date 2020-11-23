@@ -12,6 +12,6 @@ public:
     static void printAnnotation() {
         std::cout << "Should say namespace1: ";
     }
-}
+};
 
 #endif
