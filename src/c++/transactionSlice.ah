@@ -47,7 +47,7 @@ slice struct cloned_members {
 
 public:
     void dump() {
-        Copy::dump((cloned_members*) this)
+        Copy::dump((cloned_members*) this);
     }
 };
 
