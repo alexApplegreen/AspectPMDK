@@ -20,7 +20,19 @@ aspect transaction_CPP {
     }
 
     advice execution(transactionCPP()) : around() {
-        log_info("Wrapping function with transaction: %s", tjp->signature());
+        // Behandeln von read Operationen (Return und keine Parameter)
+        if (tjp->result() != 0 && JoinPoint::ARGS == 0) {
+            log_info("Wrapping function with transaction: %s and re-routing return", tjp->signature());
+
+            *tjp->result() = *tjp->target()->getMember(tjp->entity());
+        }
+
+        // Behandeln von Write Operationen (kein Return und Parameter)
+        else if (tjp->result() == 0 && JoinPoint::ARGS == 1) {
+            log_info("Wrapping function with transaction: %s and re-routing Write Parameter", tjp->signature());
+
+            *tjp->target()->getMember(tjp->entity()) = *tjp->arg<0>();
+        }
 
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
         pmem::obj::transaction::run(pop, [&] {
