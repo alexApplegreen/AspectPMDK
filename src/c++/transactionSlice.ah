@@ -4,17 +4,23 @@
 #include "../util/JPTL.h"
 #include "../util/log.h"
 #include <type_traits>
+#include <libpmemobj++/persistent_ptr.hpp>
+#include <map>
 
 template<typename MemberInfo, typename CONTEXT>
 struct MemberCopy {
   struct EXEC {
     struct RG : public CONTEXT::Copy {
       // Instanz von MemberInfo erzeugen
+      // Member sind noch gar nicht persistent, Tests funktionieren trotzdem?
       typename MemberInfo::ReferredType _member;
+
+      // So sollte es doch eigentlich aussehen:
+      // pmem::obj::persistent_ptr<typename MemberInfo::ReferredType> p_member;
 
       template <typename THAT>
       static void dump(THAT *obj) {
-        log_info("Member: %s %s", *MemberInfo::pointer(obj), MemberInfo::name());
+        log_info("Member: %s", MemberInfo::name());
         CONTEXT::Copy::dump(obj);
       }
     } __attribute__((packed));
@@ -22,7 +28,7 @@ struct MemberCopy {
     struct ST : public CONTEXT::Copy {
       template <typename THAT>
       static void dump(THAT *obj) {
-        log_info("Member: %s %s", *MemberInfo::pointer(obj), MemberInfo::name());
+        log_info("Member: %s", MemberInfo::name());
         CONTEXT::Copy::dump(obj);
       }
     } __attribute__((packed));

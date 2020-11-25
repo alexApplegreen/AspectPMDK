@@ -14,4 +14,5 @@ cppstack:
 	g++ src/util/tests-main.o src/c++/pstack_cpptest2.cpp src/util/log.c -lpmemobj -g -o cppstacktest2
 
 aoptest:
-	ag++ -std=c++11 src/c++/quicktest.cpp src/util/log.c -lpmemobj -o aoptest -g
+	ag++ -std=c++11 src/c++/quicktest.cpp src/util/log.c -lpmemobj -o aoptest -g --keep_woven
+	ag++ -std=c++11 src/c++/quicktest2.cpp src/util/log.c -lpmemobj -o aoptest2 -g --keep_woven

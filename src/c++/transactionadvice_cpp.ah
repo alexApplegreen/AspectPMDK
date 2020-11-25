@@ -10,15 +10,17 @@
 
 aspect transaction_CPP {
 
-    pointcut transactionCPP() = AOP_CPP::transactionalCpp();
+    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()";
 
     advice transactionCPP() : slice cloned_members;
 
-    advice execution(transactionCPP()) : around() {
-        log_info("Advice is triggering: %s", tjp->signature());
-
-        log_info("displaying cloned members:");
+    advice construction(transactionCPP()) : after() {
+        log_info("Instantiated persistent Aggregate. Members:");
         tjp->target()->dump();
+    }
+
+    advice execution(transactionCPP()) : around() {
+        log_info("Wrapping function with transaction: %s", tjp->signature());
 
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
         pmem::obj::transaction::run(pop, [&] {

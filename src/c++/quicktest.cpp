@@ -47,6 +47,16 @@ int tests() {
         log_error("pushing / popping does not work");
     }
 
+    while(!stack->isEmpty()) {
+        stack->pop();
+    }
+
+    stack->push('O');
+    stack->push('L');
+    stack->push('L');
+    stack->push('A');
+    stack->push('H');
+
     pop.close();
     return passed;
 }
