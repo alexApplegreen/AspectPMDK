@@ -12,11 +12,7 @@ struct MemberCopy {
   struct EXEC {
     struct RG : public CONTEXT::Copy {
       // Instanz von MemberInfo erzeugen
-      // Member sind noch gar nicht persistent, Tests funktionieren trotzdem?
       typename MemberInfo::ReferredType _member;
-
-      // So sollte es doch eigentlich aussehen:
-      // pmem::obj::persistent_ptr<typename MemberInfo::ReferredType> p_member;
 
       template <typename THAT>
       static void dump(THAT *obj) {

@@ -19,6 +19,17 @@ aspect transaction_CPP {
         tjp->target()->dump();
     }
 
+    advice set(transactionCPP() && !"static % ...::%") : around() {
+        // TODO re route access to member variables
+        log_info("writing to member variable: %s", tjp->signature());
+        tjp->proceed();
+    }
+
+    advice get(transactionCPP() && !"static % ...::%") : around() {
+        // TODO re route reding member variables
+        tjp->proceed();
+    }
+
     advice execution(transactionCPP()) : around() {
         log_info("Wrapping function with transaction: %s", tjp->signature());
 
