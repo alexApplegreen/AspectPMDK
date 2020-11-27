@@ -5,7 +5,6 @@
 #include "../util/log.h"
 #include <type_traits>
 #include <libpmemobj++/persistent_ptr.hpp>
-#include <map>
 
 template<typename MemberInfo, typename CONTEXT>
 struct MemberCopy {
@@ -19,7 +18,7 @@ struct MemberCopy {
         log_info("Member: %s", MemberInfo::name());
         CONTEXT::Copy::dump(obj);
       }
-    } __attribute__((packed));
+    };
 
     struct ST : public CONTEXT::Copy {
       template <typename THAT>
@@ -27,7 +26,7 @@ struct MemberCopy {
         log_info("Member: %s", MemberInfo::name());
         CONTEXT::Copy::dump(obj);
       }
-    } __attribute__((packed));
+    };
 
     typedef typename std::conditional<static_cast<bool>(MemberInfo::spec & AC::SPEC_STATIC), ST, RG>::type Copy;
   };

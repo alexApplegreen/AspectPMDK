@@ -7,6 +7,7 @@
 #include "attribute_cpp.ah"
 #include "../util/log.h"
 #include "transactionSlice.ah"
+#include <stdexcept>
 
 aspect transaction_CPP {
 
@@ -14,9 +15,15 @@ aspect transaction_CPP {
 
     advice transactionCPP() : slice cloned_members;
 
+    // initially log all found members of class
     advice construction(transactionCPP()) : after() {
         log_info("Instantiated persistent Aggregate. Members:");
         tjp->target()->dump();
+    }
+
+    // forbid referencing of members
+    advice ref(transactionCPP()) : around() {
+        throw new std::runtime_error("Do not reference persistenten member variables");
     }
 
     advice set(transactionCPP() && !"static % ...::%") : around() {
