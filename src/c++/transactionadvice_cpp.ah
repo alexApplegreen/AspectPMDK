@@ -3,11 +3,13 @@
 
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/transaction.hpp>
+#include <libpmemobj++/detail/common.hpp>
 #include <libpmemobj++/utils.hpp>
 #include "attribute_cpp.ah"
 #include "../util/log.h"
 #include "transactionSlice.ah"
 #include <stdexcept>
+#include <libpmemobj.h>
 
 aspect transaction_CPP {
 
@@ -23,18 +25,19 @@ aspect transaction_CPP {
 
     // forbid referencing of members
     advice ref(transactionCPP()) : around() {
-        throw new std::runtime_error("Do not reference persistenten member variables");
+        throw new std::runtime_error("Do not reference transactional data");
     }
 
-    advice set(transactionCPP() && !"static % ...::%") : around() {
-        // TODO re route access to member variables
-        log_info("writing to member variable: %s", tjp->signature());
-        tjp->proceed();
-    }
+    advice set(transactionCPP() && !"static % ...::%") : before() {
+        JoinPoint::Entity* const member = tjp->entity();
 
-    advice get(transactionCPP() && !"static % ...::%") : around() {
-        // TODO re route reding member variables
-        tjp->proceed();
+        // TODO snapshot fails bc object outside of pool?
+        try {
+            pmem::obj::transaction::snapshot<decltype(tjp->entity())>(&member);
+        }
+        catch (pmem::transaction_error e) {
+            log_warn(e.what());
+        }
     }
 
     advice execution(transactionCPP()) : around() {
