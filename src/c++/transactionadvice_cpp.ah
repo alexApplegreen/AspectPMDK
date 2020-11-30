@@ -19,12 +19,12 @@ aspect transaction_CPP {
 
     // initially log all found members of class and persist members
     advice construction(transactionCPP()) : after() {
+        // TODO geht nicht
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
         for (int i = 0; i < JoinPoint::MEMBERS; i++) {
-            pop.persist(JoinPoint::pointer<i>(tjp->that()));
-            pop.flush(JoinPoint::pointer<i>(tjp->that()));
+            pop.persist(JoinPoint::Member<i>::pointer(tjp->that));
+            pop.flush(JoinPoint::Member<i>::pointer(tjp->that));
         }
-
         log_info("Instantiated persistent Aggregate. Members:");
         tjp->target()->dump();
     }
@@ -38,8 +38,6 @@ aspect transaction_CPP {
         JoinPoint::Entity* const member = tjp->entity();
 
         log_debug("adding member %s to transaction", JoinPoint::signature());
-        // TODO snapshot fails bc object outside of pool?
-
         try {
             pmem::obj::transaction::snapshot<decltype(tjp->entity())>(&member);
         }
@@ -57,7 +55,6 @@ aspect transaction_CPP {
         pmem::obj::transaction::run(pop, [&] {
             tjp->proceed();
         });
-        log_info("Ending Transaction");
     }
 };
 
