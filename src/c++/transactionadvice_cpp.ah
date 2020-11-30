@@ -17,8 +17,14 @@ aspect transaction_CPP {
 
     advice transactionCPP() : slice cloned_members;
 
-    // initially log all found members of class
+    // initially log all found members of class and persist members
     advice construction(transactionCPP()) : after() {
+        auto pop = pmem::obj::pool_by_vptr(tjp->that());
+        for (int i = 0; i < JoinPoint::MEMBERS; i++) {
+            pop.persist(JoinPoint::pointer<i>(tjp->that()));
+            pop.flush(JoinPoint::pointer<i>(tjp->that()));
+        }
+
         log_info("Instantiated persistent Aggregate. Members:");
         tjp->target()->dump();
     }
@@ -28,16 +34,20 @@ aspect transaction_CPP {
         throw new std::runtime_error("Do not reference transactional data");
     }
 
-    advice set(transactionCPP() && !"static % ...::%") : before() {
+    advice set(transactionCPP() && !"static % ...::%") : around() {
         JoinPoint::Entity* const member = tjp->entity();
 
+        log_debug("adding member %s to transaction", JoinPoint::signature());
         // TODO snapshot fails bc object outside of pool?
+
         try {
             pmem::obj::transaction::snapshot<decltype(tjp->entity())>(&member);
         }
         catch (pmem::transaction_error e) {
             log_warn(e.what());
         }
+        tjp->proceed();
+
     }
 
     advice execution(transactionCPP()) : around() {
@@ -47,6 +57,7 @@ aspect transaction_CPP {
         pmem::obj::transaction::run(pop, [&] {
             tjp->proceed();
         });
+        log_info("Ending Transaction");
     }
 };
 
