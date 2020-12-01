@@ -1,3 +1,5 @@
+-include local.mk
+
 stack:
 	g++ src/c++/stacktest.cpp src/util/tests-main.o src/util/catch.hpp src/util/log.h -o stacktest -g
 
@@ -14,5 +16,5 @@ cppstack:
 	g++ src/util/tests-main.o src/c++/pstack_cpptest2.cpp src/util/log.c -lpmemobj -g -o cppstacktest2
 
 aoptest:
-	ag++ -std=c++11 src/c++/quicktest.cpp src/util/log.c -lpmemobj -o aoptest -g --keep_woven --data_joinpoints --builtin_operators
-	ag++ -std=c++11 src/c++/quicktest2.cpp src/util/log.c -lpmemobj -o aoptest2 -g --keep_woven --data_joinpoints --builtin_operators
+	ag++ -std=c++11 --c_compiler g++-9 src/c++/quicktest.cpp src/util/log.c -lpmemobj -o aoptest -g --keep_woven --data_joinpoints --builtin_operators
+	ag++ -std=c++11 --c_compiler g++-9 src/c++/quicktest2.cpp src/util/log.c -lpmemobj -o aoptest2 -g --keep_woven --data_joinpoints --builtin_operators

@@ -18,13 +18,8 @@ aspect transaction_CPP {
     advice transactionCPP() : slice cloned_members;
 
     // initially log all found members of class and persist members
+    // TODO wrap constructor in transaction -> pool?
     advice construction(transactionCPP()) : after() {
-        // TODO geht nicht
-        auto pop = pmem::obj::pool_by_vptr(tjp->that());
-        for (int i = 0; i < JoinPoint::MEMBERS; i++) {
-            pop.persist(JoinPoint::Member<i>::pointer(tjp->that));
-            pop.flush(JoinPoint::Member<i>::pointer(tjp->that));
-        }
         log_info("Instantiated persistent Aggregate. Members:");
         tjp->target()->dump();
     }
@@ -34,18 +29,16 @@ aspect transaction_CPP {
         throw new std::runtime_error("Do not reference transactional data");
     }
 
-    advice set(transactionCPP() && !"static % ...::%") : around() {
+    advice set(transactionCPP() && !"static % ...::%") : after() {
         JoinPoint::Entity* const member = tjp->entity();
 
         log_debug("adding member %s to transaction", JoinPoint::signature());
         try {
-            pmem::obj::transaction::snapshot<decltype(tjp->entity())>(&member);
+            pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
         }
         catch (pmem::transaction_error e) {
             log_warn(e.what());
         }
-        tjp->proceed();
-
     }
 
     advice execution(transactionCPP()) : around() {
