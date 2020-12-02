@@ -18,3 +18,7 @@ cppstack:
 aoptest:
 	ag++ -std=c++11 --c_compiler g++-9 src/c++/quicktest.cpp src/util/log.c -lpmemobj -o aoptest -g --keep_woven --data_joinpoints --builtin_operators
 	ag++ -std=c++11 --c_compiler g++-9 src/c++/quicktest2.cpp src/util/log.c -lpmemobj -o aoptest2 -g --keep_woven --data_joinpoints --builtin_operators
+
+queuetest:
+	ag++ -std=c++11 --c_compiler g++-9 src/c++/queuetest.cpp src/util/log.c -lpmemobj -o queuetest -g --data_joinpoints --builtin_operators
+	ag++ -std=c++11 --c_compiler g++-9 src/c++/queuetest2.cpp src/util/log.c -lpmemobj -o queuetest2 -g --data_joinpoints --builtin_operators
