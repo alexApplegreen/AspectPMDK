@@ -26,7 +26,7 @@ public:
         temp->data = element;
         temp->next = NULL;
 
-        if (this->isEmpty()) {
+        if (this->head == NULL) {
             this->head = temp;
             this->tail = temp;
             temp = NULL;
@@ -38,7 +38,7 @@ public:
     }
 
     char dequeue() {
-        if (this->isEmpty()) {
+        if (this->head == NULL) {
             throw new std::runtime_error("Queue is empty");
         }
         char elem = this->head->data;

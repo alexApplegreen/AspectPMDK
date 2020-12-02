@@ -40,7 +40,7 @@ int tests() {
     }
 
     while(!queue->isEmpty()) {
-        log_debug("Message from queue: %s", queue->dequeue());
+        log_debug("Message from queue: %c", queue->dequeue());
     }
 
     pop.close();
