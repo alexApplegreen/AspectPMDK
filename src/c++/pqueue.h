@@ -1,10 +1,14 @@
-#ifndef LINKEDQUEUE_H
-#define LINKEDQUEUE_H
+#ifndef LINKEDPQUEUE_H
+#define LINKEDPQUEUE_H
 
 #include <stdexcept>
 #include "attribute_cpp.ah"
+#include <libpmemobj++/transaction.hpp>
+#include <libpmemobj++/make_persistent.hpp>
+#include <libpmemobj++/utils.hpp>
+#include <libpmemobj++/pool.hpp>
 
-struct NODE {
+struct [[AOP_CPP::transactionalCpp]] NODE {
     char data;
     NODE* next;
 };
@@ -22,18 +26,24 @@ public:
     }
 
     void enqueue(char element) {
-        NODE* temp = new NODE;
+
+        auto pop = pmem::obj::pool_by_vptr(this);
+        pmem::obj::persistent_ptr<NODE> temp;
+        pmem::obj::transaction::run(pop, [&] {
+            temp = pmem::obj::make_persistent<NODE>();
+        });
+
         temp->data = element;
         temp->next = NULL;
 
         if (this->head == NULL) {
-            this->head = temp;
-            this->tail = temp;
+            this->head = temp.get();
+            this->tail = temp.get();
             temp = NULL;
         }
         else {
-            this->tail->next = temp;
-            this->tail = temp;
+            this->tail->next = temp.get();
+            this->tail = temp.get();
         }
     }
 
@@ -43,6 +53,10 @@ public:
         }
         char elem = this->head->data;
         this->head = this->head->next;
+
+        if (this->head == NULL) {
+            this->tail = NULL;
+        }
 
         return elem;
     }

@@ -13,7 +13,7 @@ int main(void) {
     switch (tests()) {
         case 0 : log_info("All tests passed"); break;
         case 1 : log_info("Tests interrupted"); break;
-        default : log_warn("Some tests failed");
+        default : log_warn("Some tests failed"); break;
     }
 
     return 0;
@@ -31,6 +31,7 @@ int tests() {
 
     pmem::obj::persistent_ptr<LinkedQueue> root = pop.root();
     *root = LinkedQueue();
+
     LinkedQueue* queue = pop.root().get();
 
     int passed = 0;

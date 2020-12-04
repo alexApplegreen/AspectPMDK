@@ -11,9 +11,9 @@ int tests();
 int main(void) {
 
     switch (tests()) {
-        case 0 : log_info("All tests passed");
-        case 1 : log_info("tests interrupted");
-        default : log_warn("Some tests failed");
+        case 0 : log_info("All tests passed"); break;
+        case 1 : log_info("Tests interrupted"); break;
+        default : log_warn("Some tests failed"); break;
     }
 
     return 0;

@@ -18,7 +18,7 @@ aspect transaction_CPP {
     advice transactionCPP() : slice cloned_members;
 
     // initially log all found members of class and persist members
-    // TODO wrap constructor in transaction -> pool?
+    // TODO woher den Pool holen?
     advice construction(transactionCPP()) : after() {
         log_info("Instantiated persistent Aggregate. Members:");
         tjp->target()->dump();
