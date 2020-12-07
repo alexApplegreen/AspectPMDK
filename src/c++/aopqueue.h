@@ -2,9 +2,10 @@
 #define AOPQUEUE_H
 
 #include <stdexcept>
-#include "attribute_cpp.h"
+#include "attribute_cpp.ah"
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>
+#include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/utils.hpp>
 
