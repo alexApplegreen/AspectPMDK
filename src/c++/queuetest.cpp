@@ -38,19 +38,19 @@ int tests() {
 
     if (!queue->isEmpty()) {
         passed--;
-        log_warn("Queue is not empty initially");
+        log_error("Queue is not empty initially");
     }
 
     queue->enqueue('H');
 
     if (queue->dequeue() != 'H') {
         passed--;
-        log_warn("Enqueueing / dequeueing does not work");
+        log_error("Enqueueing / dequeueing does not work");
     }
 
     if (!queue->isEmpty()) {
         passed--;
-        log_warn("Queue is not empty after dequeueing");
+        log_error("Queue is not empty after dequeueing");
     }
 
     queue->enqueue('H');
