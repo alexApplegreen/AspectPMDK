@@ -44,11 +44,14 @@ aspect transaction_CPP {
             // member is not a pointer:
             JoinPoint::Entity* const member = tjp->entity();
             log_debug("adding member %s to transaction", JoinPoint::signature());
+            // never loved RAII. Where is my "finally"?
             try {
                 pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
+                tjp->proceed();
             }
             catch (pmem::transaction_error e) {
                 log_warn(e.what());
+                tjp->proceed();
             }
         }
     }

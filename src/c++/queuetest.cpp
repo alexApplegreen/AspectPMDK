@@ -10,11 +10,10 @@ int tests();
 
 int main(void) {
 
-    if (tests() == 0) {
-        log_info("All tests passed");
-    }
-    else {
-        log_warn("Some tests failed");
+    switch (tests()) {
+        case 0 : log_info("All tests passed"); break;
+        case 1 : log_info("Tests interrupted"); break;
+        default : log_warn("Some tests failed"); break;
     }
 
     return 0;
