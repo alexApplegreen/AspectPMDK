@@ -4,6 +4,7 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/detail/common.hpp>
+#include <libpmemobj++/experimental/self_relative_ptr.hpp>
 #include <libpmemobj++/utils.hpp>
 #include "attribute_cpp.ah"
 #include "../util/log.h"
@@ -15,8 +16,6 @@
 #include <functional>
 
 aspect transaction_CPP {
-
-    std::map<const char*, PMEMoid> aggregate_oids;
 
     pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()";
 
@@ -34,40 +33,30 @@ aspect transaction_CPP {
         throw new std::runtime_error("Do not reference transactional data");
     }
 
-    advice set(transactionCPP() && !"static % ...::%") : after() {
-        JoinPoint::Entity* const member = tjp->entity();
-
-        // add all newly referenced members to map
+    advice set(transactionCPP() && !"static % ...::%") : around() {
         if (std::is_pointer<JoinPoint::Entity>::value) {
-            if (aggregate_oids.find(JoinPoint::signature()) == aggregate_oids.end()) {
-                // save OID of member
-                aggregate_oids.insert(std::pair<const char*, PMEMoid>(JoinPoint::signature(), pmemobj_oid(tjp->entity())));
+            pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity> member_ptr(tjp->entity());
+            *tjp->entity() = *member_ptr;
+            tjp->proceed();
+            // adding to transaction is not necessary in this case, self_relative_ptr will do that for us
+        }
+        else {
+            // member is not a pointer:
+            JoinPoint::Entity* const member = tjp->entity();
+            log_debug("adding member %s to transaction", JoinPoint::signature());
+            try {
+                pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
+            }
+            catch (pmem::transaction_error e) {
+                log_warn(e.what());
             }
         }
-
-        log_debug("adding member %s to transaction", JoinPoint::signature());
-        try {
-            pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
-        }
-        catch (pmem::transaction_error e) {
-            log_warn(e.what());
-        }
     }
 
-    advice get(transactionCPP() && !"static % ...::%") : around() {
-        // get member from pool by OID and return result
-        PMEMoid result;
-        TOID_DECLARE(JoinPoint::Entity, std::hash<char*>{}(JoinPoint::signature()));
-        TOID_ASSIGN(JoinPoint::Entity, result);
-
-        try {
-            result = aggregate_oids.at(JoinPoint::signature());
-            *tjp->entity() = (JoinPoint::Entity)D_RW(result);
-        }
-        catch (std::out_of_range e) {
-            tjp->proceed();
-        }
+    advice get(transactionCPP()) : around() {
+        *tjp->result() = *((pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>)tjp->entity()).get();
     }
+
 
     advice execution(transactionCPP()) : around() {
         log_info("Wrapping function with transaction: %s", tjp->signature());

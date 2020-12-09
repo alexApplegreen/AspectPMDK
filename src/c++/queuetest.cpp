@@ -10,10 +10,11 @@ int tests();
 
 int main(void) {
 
-    switch (tests()) {
-        case 0 : log_info("All tests passed"); break;
-        case 1 : log_info("Tests interrupted"); break;
-        default : log_warn("Some tests failed"); break;
+    if (tests() == 0) {
+        log_info("All tests passed");
+    }
+    else {
+        log_warn("Some tests failed");
     }
 
     return 0;
@@ -38,19 +39,19 @@ int tests() {
 
     if (!queue->isEmpty()) {
         passed--;
-        log_warn("Queue is not empty initially");
+        log_error("Queue is not empty initially");
     }
 
     queue->enqueue('H');
 
     if (queue->dequeue() != 'H') {
         passed--;
-        log_warn("Enqueueing / dequeueing does not work");
+        log_error("Enqueueing / dequeueing does not work");
     }
 
     if (!queue->isEmpty()) {
         passed--;
-        log_warn("Queue is not empty after dequeueing");
+        log_error("Queue is not empty after dequeueing");
     }
 
     queue->enqueue('H');
