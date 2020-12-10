@@ -36,11 +36,13 @@ int tests() {
 
     int passed = 0;
 
+    // test if queue is initially empty
     if (!queue->isEmpty()) {
         passed--;
         log_error("Queue is not empty initially");
     }
 
+    // enqueue one char and check if it can be obtained
     queue->enqueue('H');
 
     if (queue->dequeue() != 'H') {
@@ -48,11 +50,13 @@ int tests() {
         log_error("Enqueueing / dequeueing does not work");
     }
 
+    // check if queue is empty after dequeueing last element
     if (!queue->isEmpty()) {
         passed--;
         log_error("Queue is not empty after dequeueing");
     }
 
+    // enqueue "HALLO" for subsequent tests
     queue->enqueue('H');
     queue->enqueue('A');
     queue->enqueue('L');

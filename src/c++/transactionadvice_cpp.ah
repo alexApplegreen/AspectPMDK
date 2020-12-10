@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <libpmemobj.h>
 #include <type_traits>
+#include <map>
 
 aspect transaction_CPP {
 
@@ -33,6 +34,8 @@ aspect transaction_CPP {
     }
 
     advice set(transactionCPP() && !"static % ...::%") : around() {
+        log_debug("adding member %s to transaction", JoinPoint::signature());
+
         if (std::is_pointer<JoinPoint::Entity>::value) {
             pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity> member_ptr(tjp->entity());
             *tjp->entity() = *member_ptr;
@@ -42,8 +45,6 @@ aspect transaction_CPP {
         else {
             // member is not a pointer:
             JoinPoint::Entity* const member = tjp->entity();
-            log_debug("adding member %s to transaction", JoinPoint::signature());
-            // never loved RAII. Where is my "finally"?
             try {
                 pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
                 tjp->proceed();
@@ -55,6 +56,8 @@ aspect transaction_CPP {
         }
     }
 
+    // re route every read access to member pointer by self self_relative_ptr
+    // FIXME Segfault here
     advice get(transactionCPP()) : around() {
         *tjp->result() = *((pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>)tjp->entity()).get();
     }
