@@ -33,11 +33,13 @@ aspect transaction_CPP {
         throw new std::runtime_error("Do not reference transactional data");
     }
 
+    // FIXME funktioniert so evtl nicht wegen proceed(), Kontrollfluss ändern
     advice set(transactionCPP() && !"static % ...::%") : around() {
         log_debug("adding member %s to transaction", JoinPoint::signature());
 
         if (std::is_pointer<JoinPoint::Entity>::value) {
             pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity> member_ptr(tjp->entity());
+
             *tjp->entity() = *member_ptr;
             tjp->proceed();
             // adding to transaction is not necessary in this case, self_relative_ptr will do that for us
@@ -59,7 +61,9 @@ aspect transaction_CPP {
     // re route every read access to member pointer by self self_relative_ptr
     // FIXME Segfault here
     advice get(transactionCPP()) : around() {
-        *tjp->result() = *((pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>)tjp->entity()).get();
+        if (std::is_pointer<JoinPoint::Entity>::value) {
+            *tjp->result() = *((pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>)tjp->entity()).get();
+        }
     }
 
 
