@@ -22,8 +22,6 @@ aspect transaction_CPP {
 
     advice transactionCPP() : slice cloned_members;
 
-    std::map<const char*, pmem::obj::experimental::self_relative_ptr<boost::any>> pointer_map;
-
     // initially log all found members of class and persist members
     // TODO woher den Pool holen?
     advice construction(transactionCPP()) : after() {
@@ -33,23 +31,16 @@ aspect transaction_CPP {
 
     // forbid referencing of members
     advice ref(transactionCPP()) : around() {
+        // TODO durch AspectC++ Beta Funktion ersetzen?
         throw new std::runtime_error("Do not reference transactional data");
     }
 
     advice set(transactionCPP() && !"static % ...::%") : around() {
         log_debug("adding member %s to transaction", JoinPoint::signature());
 
-        // initially save self_relative_ptr in map
         if (std::is_pointer<JoinPoint::Entity>::value) {
-            // FIXME in JoinPoint::Entity steht hier NODE*, wobei wir nur NODE wollen
-            pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity> member_ptr;
-
-            if (pointer_map.find(JoinPoint::signature()) == pointer_map.end()) {
-                member_ptr(tjp->entity());
-                // TODO insert self_relative_ptr to map
-            }
-            // TODO re route self_relative_ptr to result
-            // adding to transaction is not necessary in this case, self_relative_ptr will do that for us
+            pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>member_ptr(tjp->entity());
+            *tjp->entity() = member_ptr;
         }
         else {
             // member is not a pointer:
@@ -60,14 +51,10 @@ aspect transaction_CPP {
             }
             catch (pmem::transaction_error e) {
                 log_warn(e.what());
+                // Transaktion ist hier dann nichtmehr vollständig.
                 tjp->proceed();
             }
         }
-    }
-
-    advice get(transactionCPP() && !"static % ...::%") : around() {
-        // TODO
-        tjp->proceed();
     }
 
     advice execution(transactionCPP()) : around() {
