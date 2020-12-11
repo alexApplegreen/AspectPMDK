@@ -14,12 +14,15 @@
 #include <libpmemobj.h>
 #include <type_traits>
 #include <map>
+#include <boost/any.hpp>
 
 aspect transaction_CPP {
 
     pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()";
 
     advice transactionCPP() : slice cloned_members;
+
+    std::map<const char*, pmem::obj::experimental::self_relative_ptr<boost::any>> pointer_map;
 
     // initially log all found members of class and persist members
     // TODO woher den Pool holen?
@@ -33,15 +36,19 @@ aspect transaction_CPP {
         throw new std::runtime_error("Do not reference transactional data");
     }
 
-    // FIXME funktioniert so evtl nicht wegen proceed(), Kontrollfluss ändern
     advice set(transactionCPP() && !"static % ...::%") : around() {
         log_debug("adding member %s to transaction", JoinPoint::signature());
 
+        // initially save self_relative_ptr in map
         if (std::is_pointer<JoinPoint::Entity>::value) {
-            pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity> member_ptr(tjp->entity());
+            // FIXME in JoinPoint::Entity steht hier NODE*, wobei wir nur NODE wollen
+            pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity> member_ptr;
 
-            *tjp->entity() = *member_ptr;
-            tjp->proceed();
+            if (pointer_map.find(JoinPoint::signature()) == pointer_map.end()) {
+                member_ptr(tjp->entity());
+                // TODO insert self_relative_ptr to map
+            }
+            // TODO re route self_relative_ptr to result
             // adding to transaction is not necessary in this case, self_relative_ptr will do that for us
         }
         else {
@@ -58,14 +65,10 @@ aspect transaction_CPP {
         }
     }
 
-    // re route every read access to member pointer by self self_relative_ptr
-    // FIXME Segfault here
-    advice get(transactionCPP()) : around() {
-        if (std::is_pointer<JoinPoint::Entity>::value) {
-            *tjp->result() = *((pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>)tjp->entity()).get();
-        }
+    advice get(transactionCPP() && !"static % ...::%") : around() {
+        // TODO
+        tjp->proceed();
     }
-
 
     advice execution(transactionCPP()) : around() {
         log_info("Wrapping function with transaction: %s", tjp->signature());
