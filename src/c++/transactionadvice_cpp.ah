@@ -39,6 +39,7 @@ aspect transaction_CPP {
         log_debug("adding member %s to transaction", JoinPoint::signature());
 
         if (std::is_pointer<JoinPoint::Entity>::value) {
+            // FIXME in JoinPoint::Entity steht NODE*. Ich brauche hier nur NODE
             pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>member_ptr(tjp->entity());
             *tjp->entity() = member_ptr;
         }
