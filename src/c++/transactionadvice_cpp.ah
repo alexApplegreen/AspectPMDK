@@ -39,9 +39,11 @@ aspect transaction_CPP {
         log_debug("adding member %s to transaction", JoinPoint::signature());
 
         if (std::is_pointer<JoinPoint::Entity>::value) {
-            // FIXME in JoinPoint::Entity steht NODE*. Ich brauche hier nur NODE
-            pmem::obj::experimental::self_relative_ptr<JoinPoint::Entity>member_ptr(tjp->entity());
-            *tjp->entity() = member_ptr;
+            // FIXME Irgendwie landen wir trotzdem mit nicht-Pointern hier drin
+            // Falls JoinPoint ein Pointer ist:
+            pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>member_ptr(*tjp->entity());
+            // *tjp->entity() = member_ptr.get();
+            // Snapshot muss hier nicht angelegt werden, das macht der self_relative_ptr.
         }
         else {
             // member is not a pointer:
@@ -57,6 +59,14 @@ aspect transaction_CPP {
             }
         }
     }
+
+    /* TODO Zugriff könnte so aussehen? testen. Vorher muss set funktionieren.
+    advice get(transactionCPP() && !"static %...::%") : around() {
+        if (std::is_pointer<JoinPoint::Entity>::value) {
+            *tjp->result = ((pmem::obj::experimental::self_relative_ptr<std::remove_pointer<JoinPoint::Entity>::type>)tjp->entity()).get();
+        }
+    }
+    */
 
     advice execution(transactionCPP()) : around() {
         log_info("Wrapping function with transaction: %s", tjp->signature());
