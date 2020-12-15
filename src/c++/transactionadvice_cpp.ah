@@ -37,9 +37,9 @@ aspect transaction_CPP {
 
     // set advice für Pointer
     // FIXME hat auch irgendwas mit den Crash zutun. Bestimmt wieder Pointer durcheinandergeworfen
-    advice set(transactionCPP() && !"static % ...::%") && args("% *") : around() {
+    advice set(transactionCPP() && !"static %...::%" && "%* ...::%") : around() {
         log_debug("adding member pointer %s to transaction", JoinPoint::signature());
-        pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>member_ptr(*tjp->entity());
+        pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>member_ptr(*tjp->arg<0>());
         (pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>)*tjp->entity() = member_ptr;
     }
 
@@ -59,7 +59,7 @@ aspect transaction_CPP {
         }
     }
 
-    advice get(transactionCPP() && !"static %...::%") && args("% *") : around() {
+    advice get(transactionCPP() && !"static %...::%" && "%* ...::%"): around() {
         *tjp->result() = ((pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>)*tjp->entity()).get();
     }
 
