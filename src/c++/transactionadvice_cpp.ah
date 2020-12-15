@@ -35,38 +35,32 @@ aspect transaction_CPP {
         throw new std::runtime_error("Do not reference transactional data");
     }
 
+    // set advice für Pointer
+    advice set(transactionCPP() && !"static % ...::%") && args("% *") : around() {
+        log_debug("adding member pointer %s to transaction", JoinPoint::signature());
+        pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>member_ptr(*tjp->entity());
+        (pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>)*tjp->entity() = member_ptr;
+    }
+
+    // set advice für nicht-pointer member
     advice set(transactionCPP() && !"static % ...::%") : around() {
         log_debug("adding member %s to transaction", JoinPoint::signature());
+        JoinPoint::Entity* const member = tjp->entity();
+        try {
+            pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
+            tjp->proceed();
+        }
+        catch (pmem::transaction_error e) {
+            log_warn(e.what());
+            // Transaktion ist hier dann nichtmehr vollständig.
+            tjp->proceed();
+        }
 
-        if (std::is_pointer<JoinPoint::Entity>::value) {
-            // FIXME Irgendwie landen wir trotzdem mit nicht-Pointern hier drin
-            // Falls JoinPoint ein Pointer ist:
-            pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>member_ptr(*tjp->entity());
-            // *tjp->entity() = member_ptr.get();
-            // Snapshot muss hier nicht angelegt werden, das macht der self_relative_ptr.
-        }
-        else {
-            // member is not a pointer:
-            JoinPoint::Entity* const member = tjp->entity();
-            try {
-                pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
-                tjp->proceed();
-            }
-            catch (pmem::transaction_error e) {
-                log_warn(e.what());
-                // Transaktion ist hier dann nichtmehr vollständig.
-                tjp->proceed();
-            }
-        }
     }
 
-    /* TODO Zugriff könnte so aussehen? testen. Vorher muss set funktionieren.
-    advice get(transactionCPP() && !"static %...::%") : around() {
-        if (std::is_pointer<JoinPoint::Entity>::value) {
-            *tjp->result = ((pmem::obj::experimental::self_relative_ptr<std::remove_pointer<JoinPoint::Entity>::type>)tjp->entity()).get();
-        }
+    advice get(transactionCPP() && !"static %...::%") && args("% *") : around() {
+        *tjp->result() = ((pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>)*tjp->entity()).get();
     }
-    */
 
     advice execution(transactionCPP()) : around() {
         log_info("Wrapping function with transaction: %s", tjp->signature());

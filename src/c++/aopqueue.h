@@ -36,19 +36,21 @@ public:
         temp->data = element;
         temp->next = NULL;
 
-        if (this->isEmpty()) {
+        if (this->head == NULL) {
             this->head = temp.get();
             this->tail = temp.get();
             pmem::obj::delete_persistent<NODE>(temp);
         }
         else {
-            this->tail->next = temp.get();
             this->tail = temp.get();
+            // Hier tritt der Segfault auf.
+            // Aber keine Ahnung warum
+            this->tail->next = temp.get();
         }
     }
 
     char dequeue() {
-        if (this->isEmpty()) {
+        if (this->head == NULL) {
             throw new std::runtime_error("Queue is empty");
         }
         char elem = this->head->data;
