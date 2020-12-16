@@ -23,8 +23,8 @@ private:
 
 public:
     LinkedQueue() {
-        this->head = NULL;
-        this->tail = NULL;
+        this->head = new NODE();
+        this->tail = new NODE();
     }
 
     void enqueue(char element) {
@@ -34,7 +34,7 @@ public:
             temp = pmem::obj::make_persistent<NODE>();
         });
         temp->data = element;
-        temp->next = NULL;
+        temp->next = new NODE();
 
         if (this->head == NULL) {
             this->head = temp.get();

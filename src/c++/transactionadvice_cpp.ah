@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <map>
 #include <boost/any.hpp>
+#include <iostream>
 
 aspect transaction_CPP {
 
@@ -36,11 +37,17 @@ aspect transaction_CPP {
     }
 
     // set advice für Pointer
-    // FIXME hat auch irgendwas mit den Crash zutun. Bestimmt wieder Pointer durcheinandergeworfen
     advice set(transactionCPP() && !"static %...::%" && "%* ...::%") : around() {
         log_debug("adding member pointer %s to transaction", JoinPoint::signature());
-        pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>member_ptr(*tjp->arg<0>());
-        (pmem::obj::experimental::self_relative_ptr<typename std::remove_pointer<JoinPoint::Entity>::type>)*tjp->entity() = member_ptr;
+        if (*tjp->arg<0>() == NULL) {
+            log_warn("argument %s must not be Null", JoinPoint::signature());
+            tjp->proceed();
+        }
+        std::cout << "tatsächlich im Speicher: " << *tjp->arg<0>() << std::endl;
+        typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
+
+        auto member_ptr = new pmem::obj::experimental::self_relative_ptr<entity_type>(*tjp->arg<0>());
+        (pmem::obj::experimental::self_relative_ptr<entity_type>)*tjp->entity() = *member_ptr;
     }
 
 
