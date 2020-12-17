@@ -38,21 +38,11 @@ aspect transaction_CPP {
 
     // set advice für Pointer
     advice set(transactionCPP() && !"static %...::%" && "%* ...::%") : around() {
-        log_debug("adding member pointer %s to transaction", JoinPoint::signature());
-        std::cout << "tatsächlich im Speicher:  " << *tjp->arg<0>() << std::endl;
-
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
 
         auto member_ptr = new pmem::obj::experimental::self_relative_ptr<entity_type>(*tjp->arg<0>());
-        std::cout << "member_ptr zeigt auf:     " << member_ptr->get() << std::endl;
-
-        (pmem::obj::experimental::self_relative_ptr<entity_type>)*tjp->entity() = *member_ptr;
-        std::cout
-            << "Zeiger zeigt auf:         "
-            << ((pmem::obj::experimental::self_relative_ptr<entity_type>)*tjp->entity()).get()
-            << std::endl;
+        *reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity()) = *member_ptr;
     }
-
 
     // set advice für nicht-pointer member
     advice set(transactionCPP() && !"static % ...::%") : around() {
@@ -72,14 +62,8 @@ aspect transaction_CPP {
     advice get(transactionCPP() && !"static %...::%" && "%* ...::%"): around() {
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
 
-        log_debug("Rückübersetzung von %s", JoinPoint::signature());
+        *tjp->result() = reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity())->get();
 
-        *tjp->result() = ((pmem::obj::experimental::self_relative_ptr<entity_type>)*tjp->entity()).get();
-
-        std::cout
-            << "Rückübersetzter Wert im Speicher: "
-            << ((pmem::obj::experimental::self_relative_ptr<entity_type>)*tjp->result()).get()
-            << std::endl;
     }
 
 

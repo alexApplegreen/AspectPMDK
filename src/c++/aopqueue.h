@@ -42,9 +42,7 @@ public:
             pmem::obj::delete_persistent<NODE>(temp);
         }
         else {
-            // Das funktioniert noch
             this->tail = temp.get();
-            // FIXME Hier tritt der Segfault auf. (genauer im set advice für pointer)
             this->tail->next = temp.get();
         }
     }
@@ -55,6 +53,10 @@ public:
         }
         char elem = this->head->data;
         this->head = this->head->next;
+
+        if (this->head == NULL) {
+            this->tail = NULL;
+        }
 
         return elem;
     }
