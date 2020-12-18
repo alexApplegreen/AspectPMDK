@@ -39,9 +39,13 @@ int tests() {
         return -1;
     }
 
-    while(!queue->isEmpty()) {
-        log_debug("Message from queue: %c", queue->dequeue());
+    char hallo[6];
+    for (int i = 0; i < 5; i++) {
+        hallo[i] = queue->dequeue();
     }
+    hallo[5] = '\0';
+
+    log_debug("Message from queue: %s", hallo);
 
     pop.close();
     return passed;

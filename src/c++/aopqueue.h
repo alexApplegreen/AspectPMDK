@@ -42,8 +42,8 @@ public:
             pmem::obj::delete_persistent<NODE>(temp);
         }
         else {
-            this->tail = temp.get();
             this->tail->next = temp.get();
+            this->tail = temp.get();
         }
     }
 
@@ -51,8 +51,10 @@ public:
         if (this->head == NULL) {
             throw new std::runtime_error("Queue is empty");
         }
+        auto head_ptr = this->head;
         char elem = this->head->data;
         this->head = this->head->next;
+        pmem::obj::delete_persistent<NODE>(head_ptr);
 
         if (this->head == NULL) {
             this->tail = NULL;
