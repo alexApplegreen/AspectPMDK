@@ -40,8 +40,10 @@ int tests() {
     }
 
     char hallo[6];
-    for (int i = 0; i < 5; i++) {
+    int i = 0;
+    while (!queue->isEmpty()) {
         hallo[i] = queue->dequeue();
+        i++;
     }
     hallo[5] = '\0';
 

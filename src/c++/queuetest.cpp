@@ -43,9 +43,9 @@ int tests() {
     }
 
     // enqueue one char and check if it can be obtained
-    queue->enqueue('H');
+    queue->enqueue('B');
 
-    if (queue->dequeue() != 'H') {
+    if (queue->dequeue() != 'B') {
         passed--;
         log_error("Enqueueing / dequeueing does not work");
     }
@@ -57,6 +57,7 @@ int tests() {
     }
 
     // enqueue "HALLO" for subsequent tests
+    // FIXME erster enqueue is hier irgendwie wirkungslos?
     queue->enqueue('H');
     queue->enqueue('A');
     queue->enqueue('L');

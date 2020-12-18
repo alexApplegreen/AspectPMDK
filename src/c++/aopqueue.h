@@ -39,7 +39,6 @@ public:
         if (this->head == NULL) {
             this->head = temp.get();
             this->tail = temp.get();
-            pmem::obj::delete_persistent<NODE>(temp);
         }
         else {
             this->tail->next = temp.get();
