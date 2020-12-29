@@ -28,21 +28,17 @@ public:
     }
 
     void enqueue(char element) {
-        auto pop = pmem::obj::pool_by_vptr(this);
-        pmem::obj::experimental::self_relative_ptr<NODE> temp;
-        pmem::obj::transaction::run(pop, [&] {
-            temp = pmem::obj::make_persistent<NODE>();
-        });
+        auto temp = new NODE();
         temp->data = element;
         temp->next = NULL;
 
         if (this->head == NULL) {
-            this->head = temp.get();
-            this->tail = temp.get();
+            this->head = temp;
+            this->tail = temp;
         }
         else {
-            this->tail->next = temp.get();
-            this->tail = temp.get();
+            this->tail->next = temp;
+            this->tail = temp;
         }
     }
 

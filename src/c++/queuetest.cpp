@@ -30,7 +30,9 @@ int tests() {
     }
 
     pmem::obj::persistent_ptr<LinkedQueue> root = pop.root();
-    *root = LinkedQueue();
+    pmem::obj::transaction::run(pop, [&] {
+        *root = LinkedQueue();
+    });
 
     LinkedQueue* queue = pop.root().get();
 

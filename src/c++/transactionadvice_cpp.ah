@@ -5,17 +5,14 @@
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/detail/common.hpp>
 #include <libpmemobj++/experimental/self_relative_ptr.hpp>
+#include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/utils.hpp>
-#include <libpmemobj++/experimental/self_relative_ptr.hpp>
 #include "attribute_cpp.ah"
 #include "../util/log.h"
 #include "transactionSlice.ah"
 #include <stdexcept>
 #include <libpmemobj.h>
 #include <type_traits>
-#include <map>
-#include <boost/any.hpp>
-#include <iostream>
 
 aspect transaction_CPP {
 
@@ -24,10 +21,25 @@ aspect transaction_CPP {
     advice transactionCPP() : slice cloned_members;
 
     // initially log all found members of class and persist members
-    // TODO woher den Pool holen?
-    advice construction(transactionCPP()) : after() {
-        log_info("Instantiated persistent Aggregate. Members:");
-        tjp->target()->dump();
+    advice construction(transactionCPP()) : around() {
+        log_info("Instantiating persistent aggregate: %s", JoinPoint::signature());
+
+        if (pmemobj_tx_stage() != TX_STAGE_WORK) {
+            throw new std::runtime_error("No transaction active");
+        }
+        pmem::obj::experimental::self_relative_ptr<JoinPoint::That> ptr;
+        ptr = pmemobj_tx_xalloc(sizeof(JoinPoint::That), pmem::detail::type_num<JoinPoint::That>(), 0);
+
+        if (ptr == nullptr) {
+            log_error("%s hat nicht geklappt", JoinPoint::signature());
+            // TODO Fehlerbehandlung
+        }
+
+        tjp->proceed();
+
+        // Ergebnis des Konstruktors in den ptr stecken.
+        *ptr = *tjp->that();
+
     }
 
     // forbid referencing of members
@@ -38,6 +50,7 @@ aspect transaction_CPP {
 
     // set advice für Pointer
     advice set(transactionCPP() && !"static %...::%" && "%* ...::%") : around() {
+        log_debug("setting member %s", JoinPoint::signature());
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
 
         auto member_ptr = new pmem::obj::experimental::self_relative_ptr<entity_type>(*tjp->arg<0>());
@@ -60,9 +73,9 @@ aspect transaction_CPP {
     }
 
     advice get(transactionCPP() && !"static %...::%" && "%* ...::%"): around() {
+        log_debug("getting member %s", JoinPoint::signature());
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
         *tjp->result() = reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity())->get();
-
     }
 
 
