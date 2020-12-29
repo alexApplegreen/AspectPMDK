@@ -21,25 +21,15 @@ aspect transaction_CPP {
     advice transactionCPP() : slice cloned_members;
 
     // initially log all found members of class and persist members
-    advice construction(transactionCPP()) : around() {
+    advice construction(transactionCPP()) : before() {
         log_info("Instantiating persistent aggregate: %s", JoinPoint::signature());
 
-        if (pmemobj_tx_stage() != TX_STAGE_WORK) {
-            throw new std::runtime_error("No transaction active");
+        try {
+            auto ptr = pmem::obj::make_persistent<JoinPoint::That>();
         }
-        pmem::obj::experimental::self_relative_ptr<JoinPoint::That> ptr;
-        ptr = pmemobj_tx_xalloc(sizeof(JoinPoint::That), pmem::detail::type_num<JoinPoint::That>(), 0);
-
-        if (ptr == nullptr) {
-            log_error("%s hat nicht geklappt", JoinPoint::signature());
-            // TODO Fehlerbehandlung
+        catch (pmem::pool_error e) {
+            log_error(e.what());
         }
-
-        tjp->proceed();
-
-        // Ergebnis des Konstruktors in den ptr stecken.
-        *ptr = *tjp->that();
-
     }
 
     // forbid referencing of members
