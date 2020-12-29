@@ -16,21 +16,9 @@
 
 aspect transaction_CPP {
 
-    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()";
+    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()" && !"% %::operator new(...)";
 
     advice transactionCPP() : slice cloned_members;
-
-    // initially log all found members of class and persist members
-    advice construction(transactionCPP()) : before() {
-        log_info("Instantiating persistent aggregate: %s", JoinPoint::signature());
-
-        try {
-            auto ptr = pmem::obj::make_persistent<JoinPoint::That>();
-        }
-        catch (pmem::pool_error e) {
-            log_error(e.what());
-        }
-    }
 
     // forbid referencing of members
     advice ref(transactionCPP()) : around() {

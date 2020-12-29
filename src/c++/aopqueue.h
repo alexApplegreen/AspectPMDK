@@ -9,6 +9,7 @@
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/utils.hpp>
+#include "../util/log.h"
 
 struct [[AOP_CPP::transactionalCpp]] NODE {
     char data;
