@@ -14,6 +14,7 @@
 #include <libpmemobj.h>
 #include <type_traits>
 
+// TODO logging aufräumen
 aspect transaction_CPP {
 
     pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()" && !"% %::operator new(...)";
