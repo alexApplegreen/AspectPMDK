@@ -66,6 +66,18 @@ public:
             throw new std::bad_alloc{};
         }
     }
+
+    void* operator new(std::size_t count, void* ptr) {
+        pmem::obj::experimental::self_relative_ptr<JoinPoint::That> pptr;
+        pptr = pmemobj_tx_alloc(count, pmem::detail::type_num<JoinPoint::That>());
+        ptr = pptr.get();
+        if (ptr) {
+            return ptr;
+        }
+        else {
+            throw new std::bad_alloc{};
+        }
+    }
 };
 
 #endif

@@ -1,27 +1,23 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>
+#include <libpmemobj++/make_persistent.hpp>
+#include <libpmemobj++/transaction.hpp>
 #include <libpmemobj.h>
 #include "aopstack_cpp.h"
 #include "../util/log.h"
 #include <iostream>
 #include <stdexcept>
+#include <cstdlib>
 
-#define POOL "./mempooltestbafzigundzwei"
+#define POOL "/mnt/pm_n1_ni/at/stack"
 
-int tests();
+void tests();
 
 int main(int argc, char const *argv[]) {
-    if (tests() == 0) {
-        log_info("All tests passed");
-    }
-    else {
-        log_warn("some tests failed");
-    }
-    return 0;
+    tests();
 }
 
-int tests() {
-    int passed = 0;
+void tests() {
     pmem::obj::pool<Stack> pop;
     try {
         pop = pmem::obj::pool<Stack>::create(POOL, "", PMEMOBJ_MIN_POOL);
@@ -31,32 +27,17 @@ int tests() {
     }
 
     pmem::obj::persistent_ptr<Stack> root = pop.root();
-    *root = Stack(10);
+    pmem::obj::transaction::run(pop, [&] {
+        root = pmem::obj::make_persistent<Stack>();
+    });
     Stack* stack = pop.root().get();
 
-    if (!stack->isEmpty()) {
-        passed--;
-        log_error("Stack is not Empty initially");
+    srand(0);
+
+    for (int i = 0; i < 100; i++) {
+        char rand = 'a' + std::rand() % 26;
+        stack->push(rand);
     }
-
-    stack->push('A');
-
-    char result = stack->pop();
-    if (result != 'A') {
-        passed--;
-        log_error("pushing / popping does not work");
-    }
-
-    while(!stack->isEmpty()) {
-        stack->pop();
-    }
-
-    stack->push('O');
-    stack->push('L');
-    stack->push('L');
-    stack->push('A');
-    stack->push('H');
 
     pop.close();
-    return passed;
 }

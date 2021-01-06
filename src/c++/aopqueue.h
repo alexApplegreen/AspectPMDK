@@ -10,6 +10,7 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/utils.hpp>
 #include "../util/log.h"
+#include <chrono>
 
 struct [[AOP_CPP::transactionalCpp]] NODE {
     char data;
@@ -47,10 +48,8 @@ public:
         if (this->head == NULL) {
             throw new std::runtime_error("Queue is empty");
         }
-        auto head_ptr = this->head;
         char elem = this->head->data;
         this->head = this->head->next;
-        pmem::obj::delete_persistent<NODE>(head_ptr);
 
         if (this->head == NULL) {
             this->tail = NULL;

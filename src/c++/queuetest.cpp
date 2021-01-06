@@ -3,23 +3,20 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj.h>
+#include <cstdlib>
 
-#define POOL "/mnt/pm_n0_int/at/pqueue"
+#define POOL "/mnt/pm_n1_ni/at/queue"
 
-int tests();
+void tests();
 
 int main(void) {
 
-    switch (tests()) {
-        case 0 : log_info("All tests passed"); break;
-        case 1 : log_info("Tests interrupted"); break;
-        default : log_warn("Some tests failed"); break;
-    }
+    tests();
 
     return 0;
 }
 
-int tests() {
+void tests() {
 
     pmem::obj::pool<LinkedQueue> pop;
     try {
@@ -31,42 +28,17 @@ int tests() {
 
     pmem::obj::persistent_ptr<LinkedQueue> root = pop.root();
     pmem::obj::transaction::run(pop, [&] {
-        *root = LinkedQueue();
+        root = pmem::obj::make_persistent<LinkedQueue>();
     });
 
     LinkedQueue* queue = pop.root().get();
 
-    int passed = 0;
+    srand(0);
 
-    // test if queue is initially empty
-    if (!queue->isEmpty()) {
-        passed--;
-        log_error("Queue is not empty initially");
+    for (int i = 0; i < 100; i++) {
+        char rand = 'a' + std::rand() % 26;
+        queue->enqueue(rand);
     }
-
-    // enqueue one char and check if it can be obtained
-    queue->enqueue('B');
-
-    if (queue->dequeue() != 'B') {
-        passed--;
-        log_error("Enqueueing / dequeueing does not work");
-    }
-
-    // check if queue is empty after dequeueing last element
-    if (!queue->isEmpty()) {
-        passed--;
-        log_error("Queue is not empty after dequeueing");
-    }
-
-    // enqueue "HALLO" for subsequent tests
-    // FIXME erster enqueue is hier irgendwie wirkungslos?
-    queue->enqueue('H');
-    queue->enqueue('A');
-    queue->enqueue('L');
-    queue->enqueue('L');
-    queue->enqueue('O');
-
     pop.close();
 
-    return passed;
 }
