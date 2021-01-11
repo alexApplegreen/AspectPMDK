@@ -14,7 +14,7 @@
 #include <libpmemobj.h>
 #include <type_traits>
 
-// TODO logging aufräumen
+// TODO logging aufraeumen
 aspect transaction_CPP {
 
     pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()" && !"% %::operator new(...)";
@@ -27,7 +27,7 @@ aspect transaction_CPP {
         throw new std::runtime_error("Do not reference transactional data");
     }
 
-    // set advice für Pointer
+    // set advice fuer Pointer
     advice set(transactionCPP() && !"static %...::%" && "%* ...::%") : around() {
         // log_debug("adding member to transaction: %s", JoinPoint::signature());
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
@@ -36,7 +36,7 @@ aspect transaction_CPP {
         *reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity()) = *member_ptr;
     }
 
-    // set advice für nicht-pointer member
+    // set advice fuer nicht-pointer member
     advice set(transactionCPP() && !"static % ...::%") : around() {
         //log_debug("adding member to transaction: %s", JoinPoint::signature());
         JoinPoint::Entity* const member = tjp->entity();
@@ -46,7 +46,7 @@ aspect transaction_CPP {
         }
         catch (pmem::transaction_error e) {
             log_warn(e.what());
-            // Transaktion ist hier dann nichtmehr vollständig.
+            // Transaktion ist hier dann nichtmehr vollstaendig.
             tjp->proceed();
         }
     }
