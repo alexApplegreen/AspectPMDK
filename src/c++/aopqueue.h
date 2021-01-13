@@ -10,7 +10,6 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/utils.hpp>
 #include "../util/log.h"
-#include <chrono>
 
 struct [[AOP_CPP::transactionalCpp]] NODE {
     char data;

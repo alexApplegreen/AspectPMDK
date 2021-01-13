@@ -29,7 +29,6 @@ public:
     }
 
     void push(char elem) {
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         if (this->m_counter == m_maxsize) {
             throw std::runtime_error("Stack is full");
         }
@@ -45,8 +44,6 @@ public:
                 log_error(e.what());
             }
         }
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        printf("%ld\n", std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count());
     }
 
     char pop() {

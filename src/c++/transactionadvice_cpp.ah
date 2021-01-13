@@ -23,22 +23,21 @@ aspect transaction_CPP {
 
     // forbid referencing of members
     advice ref(transactionCPP()) : around() {
-        // TODO durch AspectC++ Beta Funktion ersetzen?
         throw new std::runtime_error("Do not reference transactional data");
     }
 
     // set advice fuer Pointer
     advice set(transactionCPP() && !"static %...::%" && "%* ...::%") : around() {
-        // log_debug("adding member to transaction: %s", JoinPoint::signature());
+        log_debug("adding member to transaction: %s", JoinPoint::signature());
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
 
-        auto member_ptr = new pmem::obj::experimental::self_relative_ptr<entity_type>(*tjp->arg<0>());
+        pmem::obj::experimental::self_relative_ptr<entity_type>* member_ptr(*tjp->arg<0>());
         *reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity()) = *member_ptr;
     }
 
     // set advice fuer nicht-pointer member
     advice set(transactionCPP() && !"static % ...::%") : around() {
-        //log_debug("adding member to transaction: %s", JoinPoint::signature());
+        log_debug("adding member to transaction: %s", JoinPoint::signature());
         JoinPoint::Entity* const member = tjp->entity();
         try {
             pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
@@ -58,7 +57,7 @@ aspect transaction_CPP {
 
 
     advice execution(transactionCPP() && !"bool %::isEmpty()") : around() {
-        //log_debug("Wrapping function with transaction: %s", JoinPoint::signature());
+        log_debug("Wrapping function with transaction: %s", JoinPoint::signature());
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
         pmem::obj::transaction::run(pop, [&] {
             tjp->proceed();
