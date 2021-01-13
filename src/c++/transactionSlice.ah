@@ -4,7 +4,7 @@
 #include "../util/JPTL.h"
 #include "../util/log.h"
 #include <type_traits>
-#include <libpmemobj++/experimental/self_relative_ptr.hpp>
+#include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj++/detail/common.hpp>
 #include <libpmemobj.h>
 #include <new>
@@ -56,7 +56,7 @@ public:
     }
 
     void* operator new(std::size_t count) {
-        pmem::obj::experimental::self_relative_ptr<JoinPoint::That> pptr;
+        pmem::obj::persistent_ptr<JoinPoint::That> pptr;
         pptr = pmemobj_tx_alloc(count, pmem::detail::type_num<JoinPoint::That>());
         void* ptr = pptr.get();
         if (ptr) {
@@ -68,7 +68,7 @@ public:
     }
 
     void* operator new(std::size_t count, void* ptr) {
-        pmem::obj::experimental::self_relative_ptr<JoinPoint::That> pptr;
+        pmem::obj::persistent_ptr<JoinPoint::That> pptr;
         pptr = pmemobj_tx_alloc(count, pmem::detail::type_num<JoinPoint::That>());
         ptr = pptr.get();
         if (ptr) {
