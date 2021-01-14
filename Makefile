@@ -22,3 +22,7 @@ aoptest:
 queuetest:
 	ag++ -std=c++11 --c_compiler g++-9 src/c++/queuetest.cpp src/util/log.c -lpmemobj -o queuetest -g --data_joinpoints --builtin_operators
 	ag++ -std=c++11 --c_compiler g++-9 src/c++/queuetest2.cpp src/util/log.c -lpmemobj -o queuetest2 -g --data_joinpoints --builtin_operators
+
+vectortest:
+	ag++ -std=c++11 --c_compiler g++-9 src/c++/vectortest.cpp src/util/log.c -lpmemobj -o vectortest -g --data_joinpoints --builtin_operators
+	ag++ -std=c++11 --c_compiler g++-9 src/c++/vectortest2.cpp src/util/log.c -lpmemobj -o vectortest2 -g --data_joinpoints --builtin_operators
