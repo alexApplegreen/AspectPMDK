@@ -56,7 +56,7 @@ public:
     }
 
     void* operator new(std::size_t count) {
-        log_debug("persistent new called");
+        log_debug("persistent new called on %s", JoinPoint::signature());
         pmem::obj::persistent_ptr<JoinPoint::That> pptr;
         pptr = pmemobj_tx_alloc(count, pmem::detail::type_num<JoinPoint::That>());
         void* ptr = pptr.get();
@@ -69,7 +69,7 @@ public:
     }
 
     void* operator new(std::size_t count, void* ptr) {
-        log_debug("persistent new called");
+        log_debug("persistent new called on %s", JoinPoint::signature());
         pmem::obj::persistent_ptr<JoinPoint::That> pptr;
         pptr = pmemobj_tx_alloc(count, pmem::detail::type_num<JoinPoint::That>());
         ptr = pptr.get();

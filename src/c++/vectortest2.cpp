@@ -6,7 +6,7 @@
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj.h>
 
-#define POOL "/mnt/pm_n1_ni/at/vector"
+#define POOL "/mnt/pm_n1_ni/at/vectortest"
 
 int main(int argc, char const *argv[]) {
 
@@ -21,6 +21,7 @@ int main(int argc, char const *argv[]) {
     aopvector* vector = pop.root().get();
 
     while(!vector->isEmpty()) {
+        log_debug("popping...");
         vector->get();
     }
 

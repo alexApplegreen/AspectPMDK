@@ -7,7 +7,7 @@
 #include <libpmemobj.h>
 #include <cstdlib>
 
-#define POOL "/mnt/pm_n1_ni/at/vector"
+#define POOL "/mnt/pm_n1_ni/at/vectortest"
 
 int main(int argc, char const *argv[]) {
 
