@@ -30,8 +30,9 @@ aspect transaction_CPP {
         log_debug("adding member to transaction: %s", JoinPoint::signature());
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
 
-        auto member_ptr = new pmem::obj::experimental::self_relative_ptr<entity_type>(*tjp->arg<0>());
-        *reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity()) = *member_ptr;
+        pmem::obj::experimental::self_relative_ptr<entity_type> member_ptr(*tjp->arg<0>());
+        pmem::obj::experimental::self_relative_ptr<entity_type>* ptr_ptr = &member_ptr;
+        *reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity()) = *ptr_ptr;
     }
 
     // set advice fuer nicht-pointer member
