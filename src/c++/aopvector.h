@@ -9,7 +9,6 @@
 #include <libpmemobj++/utils.hpp>
 #include <libpmemobj++/allocator.hpp>
 
-// kapselt grundlegende Funktionen des std::vectors
 class [[AOP_CPP::transactionalCpp]] aopvector {
 
 private:
@@ -17,11 +16,6 @@ private:
 
 public:
 
-    /*
-    wird von außen aufgerufen NACHDEM aopvector instanziiert wurde um inneren
-    std::vector persistent zu machen.
-    Allocator damit Vector intern pmem allokiert.
-    */
     void init() {
         auto pop = pmem::obj::pool_by_vptr(this);
         pmem::obj::transaction::run(pop, [&] {

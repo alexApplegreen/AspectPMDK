@@ -4,7 +4,7 @@
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj.h>
 
-#define POOL "/mnt/pm_n1_ni/at/queue"
+#define POOL "/mnt/pm_n1_ni/at/aopqueue"
 
 void tests();
 
