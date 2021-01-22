@@ -36,7 +36,7 @@ public:
         if (this->head == NULL) {
             this->head = temp;
             this->tail = temp;
-            pmem::obj::delete_persistent<NODE>(temp);
+            delete temp;
         }
         else {
             this->tail->next = temp;

@@ -20,6 +20,15 @@ aspect transaction_CPP {
 
     advice transactionCPP() : slice cloned_members;
 
+    advice destruction(transactionCPP()) : after() {
+        log_debug("Deleting object %s", JoinPoint::signature());
+
+        pmem::obj::experimental::self_relative_ptr<JoinPoint::That> this_ptr(tjp->that());
+        if (pmemobj_tx_free(*this_ptr.to_persistent_ptr().raw_ptr()) != 0) {
+            throw new pmem::transaction_free_error("Failed to delete persistent memory object");
+        }
+    }
+
     // forbid referencing of members
     advice ref(transactionCPP()) : around() {
         throw new std::runtime_error("Do not reference transactional data");
