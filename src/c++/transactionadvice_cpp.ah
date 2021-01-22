@@ -16,9 +16,16 @@
 
 aspect transaction_CPP {
 
-    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"void %::dump()" && !"% %::operator new(...)";
+    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"% %::operator new(...)";
 
     advice transactionCPP() : slice cloned_members;
+
+    advice destruction(transactionCPP()) : after() {
+        log_debug("deleting persistent object %s", JoinPoint::signature());
+        pmem::obj::experimental::self_relative_ptr<JoinPoint::That> this_ptr(tjp->that());
+        if (pmemobj_tx_free(this_ptr);
+            throw pmem::transaction_free_error("failed to delete persistent memory object");
+    }
 
     // forbid referencing of members
     advice ref(transactionCPP()) : around() {
