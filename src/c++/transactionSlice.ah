@@ -55,6 +55,13 @@ public:
         Copy::dump((cloned_members*) this);
     }
 
+
+    void operator delete(void* ptr) {
+        log_debug("persistent delete called on %s", JoinPoint::signature());
+        pmem::obj::delete_persistent<JoinPoint::That>(*reinterpret_cast<pmem::obj::experimental::self_relative_ptr<JoinPoint::That>*>(ptr));
+    }
+
+
     void* operator new(std::size_t count) {
         log_debug("persistent new called on %s", JoinPoint::signature());
         pmem::obj::persistent_ptr<JoinPoint::That> pptr;

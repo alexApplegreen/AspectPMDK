@@ -36,7 +36,6 @@ public:
         if (this->head == NULL) {
             this->head = temp;
             this->tail = temp;
-            pmem::obj::delete_persistent<NODE>(temp);
         }
         else {
             this->tail->next = temp;
@@ -48,8 +47,12 @@ public:
         if (this->head == NULL) {
             throw new std::runtime_error("Queue is empty");
         }
+        auto temp = this->head;
+
         char elem = this->head->data;
         this->head = this->head->next;
+
+        delete temp;
 
         if (this->head == NULL) {
             this->tail = NULL;

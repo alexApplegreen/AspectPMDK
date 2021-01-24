@@ -9,6 +9,7 @@
 #include <libpmemobj++/utils.hpp>
 #include <libpmemobj++/pool.hpp>
 #include "../util/log.h"
+#include <chrono>
 
 struct NODE {
     pmem::obj::p<char> data;
@@ -32,18 +33,16 @@ public:
         pmem::obj::persistent_ptr<NODE> temp;
         pmem::obj::transaction::run(pop, [&] {
             temp = pmem::obj::make_persistent<NODE>();
-
-            temp->data = element;
             temp->next = NULL;
+            temp->data = element;
 
             if (this->head == NULL) {
-                this->head = temp.get();
-                this->tail = temp.get();
-                pmem::obj::delete_persistent<NODE>(temp);
+                this->head = temp;
+                this->tail = temp;
             }
             else {
-                this->tail->next = temp.get();
-                this->tail = temp.get();
+                this->tail->next = temp;
+                this->tail = temp;
             }
         });
     }
@@ -55,8 +54,12 @@ public:
             if (this->head == NULL) {
                 throw new std::runtime_error("Queue is empty");
             }
+            auto tmp = this->head;
+
             elem = this->head->data;
             this->head = this->head->next;
+
+            pmem::obj::delete_persistent<NODE>temp;
 
             if (this->head == NULL) {
                 this->tail = NULL;

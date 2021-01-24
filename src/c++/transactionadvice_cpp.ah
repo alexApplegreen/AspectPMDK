@@ -13,10 +13,11 @@
 #include <stdexcept>
 #include <libpmemobj.h>
 #include <type_traits>
+#include <chrono>
 
 aspect transaction_CPP {
 
-    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"% %::operator new(...)";
+    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"% %::operator new(...)" && !"% %::operator delete(...)";
 
     advice transactionCPP() : slice cloned_members;
 
@@ -58,6 +59,7 @@ aspect transaction_CPP {
 
     advice execution(transactionCPP() && !"bool %::isEmpty()") : around() {
         log_debug("Wrapping function with transaction: %s", JoinPoint::signature());
+
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
         pmem::obj::transaction::run(pop, [&] {
             tjp->proceed();

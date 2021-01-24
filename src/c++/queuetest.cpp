@@ -5,7 +5,7 @@
 #include <libpmemobj.h>
 #include <cstdlib>
 
-#define POOL "/mnt/pm_n1_ni/at/queue"
+#define POOL "/mnt/pm_n0_int/at/queue"
 
 void tests();
 
@@ -20,10 +20,9 @@ void tests() {
 
     pmem::obj::pool<LinkedQueue> pop;
     try {
-        pop = pmem::obj::pool<LinkedQueue>::create(POOL, "", 8388608);
+        pop = pmem::obj::pool<LinkedQueue>::create(POOL, "", PMEMOBJ_MIN_POOL);
     }
     catch (pmem::pool_error e) {
-        log_error(e.what());
         pop = pmem::obj::pool<LinkedQueue>::open(POOL, "");
     }
 
@@ -36,10 +35,9 @@ void tests() {
 
     srand(0);
 
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 100; i++) {
         char rand = 'a' + std::rand() % 26;
         queue->enqueue(rand);
-        queue->dequeue();
     }
     pop.close();
 
