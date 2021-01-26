@@ -36,7 +36,7 @@ public:
             temp->next = NULL;
             temp->data = element;
 
-            if (this->head == NULL) {
+            if (this->isEmpty()) {
                 this->head = temp;
                 this->tail = temp;
             }
@@ -51,7 +51,7 @@ public:
         auto pop = pmem::obj::pool_by_vptr(this);
         char elem;
         pmem::obj::transaction::run(pop, [&] {
-            if (this->head == NULL) {
+            if (this->isEmpty()) {
                 throw new std::runtime_error("Queue is empty");
             }
             auto tmp = this->head;

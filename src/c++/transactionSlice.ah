@@ -12,51 +12,9 @@
 #include <new>
 #include <cstdlib>
 
-template<typename MemberInfo, typename CONTEXT>
-struct MemberCopy {
-  struct EXEC {
-    struct RG : public CONTEXT::Copy {
-      // Instanz von MemberInfo erzeugen
-      typename MemberInfo::ReferredType _member;
-
-      template <typename THAT>
-      static void dump(THAT *obj) {
-        log_info("Member: %s", MemberInfo::name());
-        CONTEXT::Copy::dump(obj);
-      }
-    };
-
-    struct ST : public CONTEXT::Copy {
-      template <typename THAT>
-      static void dump(THAT *obj) {
-        log_info("Member: %s", MemberInfo::name());
-        CONTEXT::Copy::dump(obj);
-      }
-    };
-
-    typedef typename std::conditional<static_cast<bool>(MemberInfo::spec & AC::SPEC_STATIC), ST, RG>::type Copy;
-  };
-};
-
-template<typename MemberInfo>
-struct MemberCopy<MemberInfo, void> {
-  struct EXEC {
-    struct Copy {
-      template <typename THAT>
-      static void dump(THAT *obj) {}
-    };
-  };  // initial EXEC
-};
-
-slice struct cloned_members {
-
-    typedef JPTL::MemberIterator<JoinPoint, MemberCopy>::EXEC::Copy Copy;
+slice struct transactionslice {
 
 public:
-    void dump() {
-        Copy::dump((cloned_members*) this);
-    }
-
 
     void operator delete(void* ptr) {
         log_debug("persistent delete called on %s", JoinPoint::signature());

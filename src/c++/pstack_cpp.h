@@ -20,7 +20,6 @@ class PStack {
 public:
 
     PStack(uint64_t size) {
-        m_counter = 0;
         m_maxsize = size;
 
         log_debug("Stacksize is: %d", this->m_maxsize);
@@ -73,7 +72,7 @@ public:
     }
 
 private:
-    pmem::obj::p<uint64_t>                              m_counter;
+    pmem::obj::p<uint64_t>                              m_counter = 0;
     pmem::obj::p<uint64_t>                              m_maxsize;
     pmem::obj::p<char>                                  m_elements[STACK_MAXSIZE];
 

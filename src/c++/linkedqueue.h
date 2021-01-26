@@ -28,7 +28,6 @@ public:
         if (this->isEmpty()) {
             this->head = temp;
             this->tail = temp;
-            temp = NULL;
         }
         else {
             this->tail->next = temp;
@@ -40,8 +39,16 @@ public:
         if (this->isEmpty()) {
             throw new std::runtime_error("Queue is empty");
         }
+        auto temp = this->head;
+
         char elem = this->head->data;
         this->head = this->head->next;
+
+        delete temp;
+
+        if (this->head == NULL) {
+            this->tail = NULL;
+        }
 
         return elem;
     }

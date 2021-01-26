@@ -66,5 +66,4 @@ public:
     }
 };
 
-
 #endif
