@@ -14,18 +14,19 @@ class [[AOP_CPP::transactionalCpp]] Stack {
 
 public:
 
-    Stack() : Stack(STACK_MAXSIZE) {}
-
     Stack(uint64_t size) {
         if (size > STACK_MAXSIZE) {
             throw new std::invalid_argument("Stacksize exceeds maximum size");
         }
         this->m_maxsize = size;
         this->m_counter = 0;
+
+        log_debug("Stack size is %d", this->m_maxsize);
     }
 
     void push(char elem) {
-        if (this->m_counter == m_maxsize) {
+        log_debug("Stack size is %d", this->m_maxsize);
+        if (this->m_counter == this->m_maxsize) {
             throw std::runtime_error("Stack is full");
         }
         else {

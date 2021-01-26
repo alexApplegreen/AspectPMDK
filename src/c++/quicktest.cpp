@@ -3,13 +3,13 @@
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj.h>
-#include "aopstack_cpp.h"
+#include "pstack_cpp.h"
 #include "../util/log.h"
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
 
-#define POOL "/mnt/pm_n1_ni/at/stack"
+#define POOL "aopstacktest"
 
 void tests();
 
@@ -18,25 +18,26 @@ int main(int argc, char const *argv[]) {
 }
 
 void tests() {
-    pmem::obj::pool<Stack> pop;
+    pmem::obj::pool<PStack> pop;
     try {
-        pop = pmem::obj::pool<Stack>::create(POOL, "", PMEMOBJ_MIN_POOL);
+        pop = pmem::obj::pool<PStack>::create(POOL, "", PMEMOBJ_MIN_POOL);
     }
     catch (pmem::pool_error e) {
-        pop = pmem::obj::pool<Stack>::open(POOL, "");
+        pop = pmem::obj::pool<PStack>::open(POOL, "");
     }
 
-    pmem::obj::persistent_ptr<Stack> root = pop.root();
+    pmem::obj::persistent_ptr<PStack> root = pop.root();
     pmem::obj::transaction::run(pop, [&] {
-        root = pmem::obj::make_persistent<Stack>();
+        root = pmem::obj::make_persistent<PStack>(10);
     });
-    Stack* stack = pop.root().get();
+    PStack* stack = pop.root().get();
 
     srand(0);
 
     for (int i = 0; i < 100; i++) {
         char rand = 'a' + std::rand() % 26;
         stack->push(rand);
+        // stack->pop();
     }
 
     pop.close();

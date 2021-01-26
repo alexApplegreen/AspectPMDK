@@ -1,8 +1,6 @@
 #ifndef PSTACK_CLASS_H
 #define PSTACK_CLASS_H
 
-#define STACK_MAXSIZE 1024
-
 #include <inttypes.h>
 #include "../util/log.h"
 #include <stdexcept>
@@ -15,44 +13,45 @@
 #include <libpmemobj.h>
 #include <chrono>
 
+#define STACK_MAXSIZE 1024
+
 class PStack {
 
 public:
-    PStack() : PStack(STACK_MAXSIZE) {}
 
     PStack(uint64_t size) {
-        if (size > STACK_MAXSIZE) {
-            throw new std::invalid_argument("Stacksize exceeds maximum size");
-        }
-        this->m_maxsize = size;
-        this->m_counter = 0;
+        m_counter = 0;
+        m_maxsize = size;
+
+        log_debug("Stacksize is: %d", this->m_maxsize);
     }
 
     void push(char elem) {
-        if (this->m_counter == m_maxsize) {
-            throw std::runtime_error("Stack is full");
+        log_debug("Stacksize is: %d", this->m_maxsize);
+
+        if (this->m_counter == this->m_maxsize) {
+            throw new std::runtime_error("Stack is full");
         }
-        else {
-            try {
-                auto pop = pmem::obj::pool_by_vptr(this);
-                pmem::obj::transaction::run(pop, [&] {
-                    this->m_elements[this->m_counter] = elem;
-                    this->m_counter = this->m_counter + 1;
-                });
-            }
-            catch (pmem::pool_error e) {
-                log_error(e.what());
-            }
+        try {
+            auto pop = pmem::obj::pool_by_vptr(this);
+            pmem::obj::transaction::run(pop, [&] {
+                this->m_elements[this->m_counter] = elem;
+                this->m_counter = this->m_counter + 1;
+            });
+        }
+        catch (pmem::pool_error e) {
+            log_error(e.what());
         }
     }
 
     char pop() {
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        auto start = std::chrono::system_clock::now();
         if (this->m_counter == 0) {
             throw std::runtime_error("Stack is empty");
         }
         else {
             char elem;
+
             try {
                 auto pop = pmem::obj::pool_by_vptr(this);
                 pmem::obj::transaction::run(pop, [&] {
@@ -63,13 +62,13 @@ public:
             catch (pmem::pool_error e) {
                 log_error(e.what());
             }
-            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-            printf("%ld\n", std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count());
+            auto end = std::chrono::system_clock::now();
+            printf("%ld,", std::chrono::duration_cast<std::chrono::nanoseconds>(end - start));
             return elem;
         }
     }
 
-    int isEmpty() {
+    bool isEmpty() {
         return this->m_counter == 0;
     }
 

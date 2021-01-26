@@ -6,7 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#define POOL "/mnt/pm_n1_ni/at/stack"
+#define POOL "aopstacktest"
 
 void tests();
 

@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj++/detail/common.hpp>
+#include <libpmemobj++/experimental/self_relative_ptr.hpp>
+#include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj.h>
 #include <new>
 #include <cstdlib>

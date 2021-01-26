@@ -5,13 +5,19 @@
 #include <cstdlib>
 #include <stdexcept>
 #include "../util/log.h"
-#include <assert.h>
+
+#define STACK_MAXSIZE 1024 * 100000
 
 class Stack {
 
 public:
 
+    Stack() : Stack(STACK_MAXSIZE) {}
+
     Stack(uint64_t size) {
+        if (size > STACK_MAXSIZE) {
+            throw new std::invalid_argument("Stacksize exceeds maximum size");
+        }
         this->m_maxsize = size;
         this->m_elements[size];
         this->m_counter = 0;
@@ -46,7 +52,7 @@ private:
 
     uint64_t                m_counter;
     uint64_t                m_maxsize;
-    char                    m_elements[];
+    char                    m_elements[STACK_MAXSIZE];
 
 };
 #endif
