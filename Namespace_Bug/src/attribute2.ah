@@ -1,9 +1,0 @@
-#ifndef ATTRIBUTE_TWO_AH
-#define ATTRIBUTE_TWO_AH
-
-// gleicher Name wie anderes Attribut, aber anderer Namespace
-namespace namespace2 {
-    attribute attr();
-}
-
-#endif

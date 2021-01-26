@@ -1,8 +1,0 @@
-#ifndef ATTRIBUTE_ONE_AH
-#define ATTRIBUTE_ONE_AH
-
-namespace namespace1 {
-    attribute attr();
-}
-
-#endif
