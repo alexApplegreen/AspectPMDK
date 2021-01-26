@@ -2,7 +2,7 @@
 #define AOPQUEUE_H
 
 #include <stdexcept>
-#include "attribute_cpp.ah"
+#include "attribute.ah"
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj++/experimental/self_relative_ptr.hpp>

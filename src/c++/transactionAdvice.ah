@@ -1,0 +1,70 @@
+#ifndef TRANSACTION_ADVICE_CPP_AH
+#define TRANSACTION_ADVICE_CPP_AH
+
+#include <libpmemobj++/pool.hpp>
+#include <libpmemobj++/transaction.hpp>
+#include <libpmemobj++/detail/common.hpp>
+#include <libpmemobj++/experimental/self_relative_ptr.hpp>
+#include <libpmemobj++/make_persistent.hpp>
+#include <libpmemobj++/utils.hpp>
+#include "attribute.ah"
+#include "../util/log.h"
+#include "transactionSlice.ah"
+#include <stdexcept>
+#include <libpmemobj.h>
+#include <type_traits>
+#include <chrono>
+
+aspect transaction_CPP {
+
+    pointcut transactionCPP() = AOP_CPP::transactionalCpp() && !"% %::operator new(...)" && !"% %::operator delete(...)";
+
+    advice transactionCPP() : slice transactionslice;
+
+    // Referenzierung von Member-Variablen verhindern
+    advice ref(transactionCPP()) : around() {
+        throw new std::runtime_error("Do not reference transactional data");
+    }
+
+    // set advice fuer Pointer
+    advice set(transactionCPP() && !"static %...::%" && "%* ...::%") : around() {
+        log_debug("adding member to transaction: %s", JoinPoint::signature());
+        typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
+
+        pmem::obj::experimental::self_relative_ptr<entity_type> member_ptr(*tjp->arg<0>());
+        pmem::obj::experimental::self_relative_ptr<entity_type>* ptr_ptr = &member_ptr;
+        *reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity()) = *ptr_ptr;
+    }
+
+    // set advice fuer nicht-pointer member
+    advice set(transactionCPP() && !"static % ...::%") : around() {
+        log_debug("adding member to transaction: %s", JoinPoint::signature());
+        JoinPoint::Entity* const member = tjp->entity();
+        try {
+            pmem::obj::transaction::snapshot<JoinPoint::Entity>(member);
+            tjp->proceed();
+        }
+        catch (pmem::transaction_error e) {
+            log_warn(e.what());
+            // Transaktion ist hier dann nichtmehr vollstaendig.
+            tjp->proceed();
+        }
+    }
+
+    advice get(transactionCPP() && !"static %...::%" && "%* ...::%"): around() {
+        typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
+        *tjp->result() = reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity())->get();
+    }
+
+
+    advice execution(transactionCPP()) : around() {
+        log_debug("Wrapping function with transaction: %s", JoinPoint::signature());
+
+        auto pop = pmem::obj::pool_by_vptr(tjp->that());
+        pmem::obj::transaction::run(pop, [&] {
+            tjp->proceed();
+        });
+    }
+};
+
+#endif

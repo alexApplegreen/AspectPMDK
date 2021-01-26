@@ -2,7 +2,6 @@
 #define LINKEDPQUEUE_H
 
 #include <stdexcept>
-#include "attribute_cpp.ah"
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>

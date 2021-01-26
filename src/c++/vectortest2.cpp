@@ -21,7 +21,6 @@ int main(int argc, char const *argv[]) {
     aopvector* vector = pop.root().get();
 
     while(!vector->isEmpty()) {
-        log_debug("popping...");
         vector->get();
     }
 

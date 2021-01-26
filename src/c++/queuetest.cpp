@@ -5,7 +5,7 @@
 #include <libpmemobj.h>
 #include <cstdlib>
 
-#define POOL "/mnt/pm_n0_int/at/queue"
+#define POOL "queuepool"
 
 void tests();
 
