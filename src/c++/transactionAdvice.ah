@@ -13,7 +13,6 @@
 #include <stdexcept>
 #include <libpmemobj.h>
 #include <type_traits>
-#include <chrono>
 
 aspect transaction_CPP {
 
@@ -55,7 +54,6 @@ aspect transaction_CPP {
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
         *tjp->result() = reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity())->get();
     }
-
 
     advice execution(transactionCPP()) : around() {
         log_debug("Wrapping function with transaction: %s", JoinPoint::signature());

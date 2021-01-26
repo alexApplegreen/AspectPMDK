@@ -1,12 +1,8 @@
 #ifndef TRANSACTION_SLICE_AH
 #define TRANSACTION_SLICE_AH
 
-#include "../util/JPTL.h"
 #include "../util/log.h"
-#include <type_traits>
 #include <libpmemobj++/persistent_ptr.hpp>
-#include <libpmemobj++/detail/common.hpp>
-#include <libpmemobj++/experimental/self_relative_ptr.hpp>
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj.h>
 #include <new>

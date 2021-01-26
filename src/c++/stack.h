@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include "../util/log.h"
 
-#define STACK_MAXSIZE 1024 * 100000
+#define STACK_MAXSIZE 1024
 
 class Stack {
 
