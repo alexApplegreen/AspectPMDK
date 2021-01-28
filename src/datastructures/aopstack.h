@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include "../util/log.h"
-#include "attribute.ah"
+#include "../util/attribute.ah"
 
 #define STACK_MAXSIZE 1024
 

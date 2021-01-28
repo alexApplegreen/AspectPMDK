@@ -8,7 +8,7 @@
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/utils.hpp>
 #include "attribute.ah"
-#include "../util/log.h"
+#include "log.h"
 #include "transactionSlice.ah"
 #include <stdexcept>
 #include <libpmemobj.h>

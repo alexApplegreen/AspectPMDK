@@ -1,7 +1,7 @@
 #ifndef TRANSACTION_SLICE_AH
 #define TRANSACTION_SLICE_AH
 
-#include "../util/log.h"
+#include "log.h"
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj++/experimental/self_relative_ptr.hpp>
 #include <libpmemobj++/make_persistent.hpp>

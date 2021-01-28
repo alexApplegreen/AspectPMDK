@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_EXTERNAL_INTERFACES
 
 #include "../util/catch.hpp"
-#include "stack.h"
+#include "../datastructures/stack.h"
 #include <stdexcept>
 
 Stack stack(10);

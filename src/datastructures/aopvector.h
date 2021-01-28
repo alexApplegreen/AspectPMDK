@@ -2,7 +2,7 @@
 #define AOPVECTOR_H
 
 #include <vector>
-#include "attribute.ah"
+#include "../util/attribute.ah"
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/experimental/self_relative_ptr.hpp>
 #include <libpmemobj++/make_persistent.hpp>

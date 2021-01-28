@@ -1,7 +1,7 @@
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj.h>
-#include "aopstack.h"
+#include "../datastructures/aopstack.h"
 #include "../util/log.h"
 #include <iostream>
 #include <stdexcept>

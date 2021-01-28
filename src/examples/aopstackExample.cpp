@@ -3,7 +3,7 @@
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj.h>
-#include "aopstack.h"
+#include "../datastructures/aopstack.h"
 #include "../util/log.h"
 #include <iostream>
 #include <stdexcept>

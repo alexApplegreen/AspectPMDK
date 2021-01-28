@@ -2,13 +2,13 @@
 #define AOPQUEUE_H
 
 #include <stdexcept>
-#include "attribute.ah"
 #include <libpmemobj++/make_persistent.hpp>
 #include <libpmemobj++/persistent_ptr.hpp>
 #include <libpmemobj++/experimental/self_relative_ptr.hpp>
 #include <libpmemobj++/transaction.hpp>
 #include <libpmemobj++/pool.hpp>
 #include <libpmemobj++/utils.hpp>
+#include "../util/attribute.ah"
 #include "../util/log.h"
 
 struct [[AOP_CPP::transactionalCpp]] NODE {
