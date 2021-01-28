@@ -50,12 +50,12 @@ aspect transaction_CPP {
         }
     }
 
-    advice get(transactionCPP() && !"static %...::%" && "%* ...::%"): around() {
+    advice get(transactionCPP() && !"static % ...::%" && "%* ...::%"): around() {
         typedef typename std::remove_pointer<JoinPoint::Entity>::type entity_type;
         *tjp->result() = reinterpret_cast<pmem::obj::experimental::self_relative_ptr<entity_type>*>(tjp->entity())->get();
     }
 
-    advice execution(transactionCPP()) : around() {
+    advice execution(transactionCPP() && !"static % ...::%") : around() {
         log_debug("Wrapping function with transaction: %s", JoinPoint::signature());
 
         auto pop = pmem::obj::pool_by_vptr(tjp->that());
