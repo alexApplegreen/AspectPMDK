@@ -9,6 +9,7 @@ Therefore it encapsulates the PMDK transactional API and write operations to the
 ## Dependencies:
 * daxctl
 * ndctl
+* AspectC++ Compiler ag++ https://www.aspectc.org
 
 https://docs.pmem.io/ndctl-user-guide/installing-ndctl/installing-ndctl-packages-on-linux
 
@@ -30,3 +31,6 @@ One will initialize a memory pool and instantiate the datastructure while settin
 The tests will then proceed to put elements into the datastructure.
 
 The second example-program will then reference the datastructure from persistent memory and read it's contents.
+
+Moreover there is a hands-on demonstration of AspectC++ using a aspect-oriented version of the classic Hello World example.
+It can be built via the make-target aspectc.

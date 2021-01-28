@@ -1,5 +1,3 @@
--include local.mk
-
 CXXFLAGS= -g
 ACCFLAGS= -std=c++11 --c_compiler g++-9 --data_joinpoints --builtin_operators
 LOG = src/util/log.c
@@ -22,7 +20,8 @@ aopqueue: aopqueueexample aopqueueexample2
 aopvector: aopvectorexample aopvectorexample2
 .PHONY: aopvector
 
-
+aspectc: aspectcexample
+.PHONY: aspectc
 
 clean:
 	rm -rf stacktest
@@ -30,6 +29,7 @@ clean:
 	rm -rf aopstackexample*
 	rm -rf aopqueueexample*
 	rm -rf aopvectorexample*
+	rm -rf aspectcexample
 
 
 
@@ -38,6 +38,9 @@ stacktest: src/examples/stacktest.cpp src/datastructures/stack.h
 
 queuetest: src/examples/queuetest.cpp src/datastructures/linkedqueue.h
 	g++ $(CXXFLAGS) $(LOG) $(CATCH_O) src/examples/queuetest.cpp -o $@
+
+aspectcexample: aspectc++_example/HelloWorld.cpp aspectc++_example/hello.h
+	ag++ $(CXXFLAGS) $(ACCFLAGS) aspectc++_example/HelloWorld.cpp -o $@
 
 
 
