@@ -4,15 +4,16 @@
 AspectPMDK is a aspect-oriented abstraction of the Intel PMDK: (https://pmem.io/pmdk/),
 using AspectC++ (https://www.aspectc.org).
 It aims to make datastructures written in C++ work on persistent memory like Intel's Optane.
-Therefore it encapsulates the PMDK transacional API and write operations to the datastructre's member variables.
+Therefore it encapsulates the PMDK transactional API and write operations to the datastructure's member variables.
 
 ## Dependencies:
 * daxctl
 * ndctl
+
 https://docs.pmem.io/ndctl-user-guide/installing-ndctl/installing-ndctl-packages-on-linux
 
 ## About
-This Repository contains 2 Datastructures in 3 flavours:
+This Repository contains 2 datastructures (stack and queue) in 3 flavours:
 * vanilla
 * persistent (manual with PMDK/libpmemobj++)
 * aspect-oriented persistent
