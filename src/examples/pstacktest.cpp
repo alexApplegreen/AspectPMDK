@@ -52,7 +52,6 @@ TEST_CASE("is empty initially", "[Stack]") {
     REQUIRE(stack->isEmpty());
 }
 
-// funktioniert
 TEST_CASE("Can push / pop", "[Stack]") {
     stack->push('A');
     REQUIRE_FALSE(stack->isEmpty());
@@ -100,7 +99,7 @@ TEST_CASE("Constructor Tests", "[Stack]") {
             for (int i = 0; i < STACK_MAXSIZE + 1; i++) {
                 stack->push('X');
             }
-        }(), std::runtime_error);
+        }(), std::runtime_error*);
 
 
         *root = PStack(10);

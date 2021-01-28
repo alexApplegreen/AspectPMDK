@@ -27,6 +27,7 @@ TEST_CASE("Can push / pop", "[Stack]") {
     REQUIRE_FALSE(stack.isEmpty());
     char elem = stack.pop();
     REQUIRE(elem == 'O');
+    REQUIRE(stack.isEmpty());
 }
 
 TEST_CASE("push throws exception", "[Stack]") {
@@ -39,4 +40,21 @@ TEST_CASE("push throws exception", "[Stack]") {
 
 TEST_CASE("pop throws exception", "[Stack]") {
     REQUIRE_THROWS_WITH(stack.pop(), "Stack is empty");
+}
+
+TEST_CASE("LIFO works", "[Stack]") {
+    stack.push('O');
+    stack.push('L');
+    stack.push('L');
+    stack.push('A');
+    stack.push('H');
+
+    char hello[6];
+    int i = 0;
+    while(!stack.isEmpty()) {
+        hello[i] = stack.pop();
+        i++;
+    }
+    hello[5] = '\0';
+    REQUIRE(strcmp(hello, "HALLO") == 0);
 }
